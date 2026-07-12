@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ByteGym — Your gym training data, on your phone</title>
+<meta name="description" content="An open-source app for your eGym training data: strength progress, how busy the gym is right now, and a leaderboard that only counts what you actually lifted.">
+
+<meta property="og:title" content="ByteGym">
+<meta property="og:description" content="Your eGym training data on your phone. Strength progress, gym occupancy, and a leaderboard that only counts machine workouts.">
+<meta property="og:url" content="https://bytegym.de">
+<meta property="og:image" content="https://bytegym.de/app-icon.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="app-icon.png">
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f7f6f3;
+    --card: #ffffff;
+    --text: #16150f;
+    --muted: #5f5a4d;
+    --border: #e7e4dc;
+    --brand: #f59e0b;
+    --brand-ink: #1a1400;
+    --accent: #d97706;
+    --shadow: 0 1px 2px rgba(20,18,10,.06), 0 8px 24px rgba(20,18,10,.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111008;
+      --bg-soft: #191710;
+      --card: #1b1912;
+      --text: #f0ece1;
+      --muted: #a49c86;
+      --border: #2b281e;
+      --accent: #fbbf24;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- header ---------- */
+  header { padding: 28px 0; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    font-weight: 700; font-size: 19px; letter-spacing: -.01em; text-decoration: none;
+  }
+  .brand img { width: 34px; height: 34px; border-radius: 9px; display: block; }
+  .bar nav { display: flex; gap: 22px; font-size: 15px; color: var(--muted); }
+  .bar nav a { text-decoration: none; }
+  .bar nav a:hover { color: var(--text); }
+  @media (max-width: 620px) { .bar nav { display: none; } }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding: 56px 0 40px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center;
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; padding-top: 32px; }
+  }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px;
+    background: var(--bg-soft); font-size: 13px; color: var(--muted); margin-bottom: 22px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; }
+
+  h1 {
+    margin: 0 0 18px;
+    font-size: clamp(36px, 5.2vw, 54px); line-height: 1.08;
+    letter-spacing: -.03em; font-weight: 800;
+  }
+  h1 .glow { color: var(--brand); }
+
+  .lede { margin: 0 0 32px; font-size: 19px; color: var(--muted); max-width: 34ch; }
+
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 13px 22px; border-radius: 12px; text-decoration: none;
+    font-weight: 600; font-size: 15px; border: 1px solid transparent;
+    transition: transform .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-primary { background: var(--brand); color: var(--brand-ink); box-shadow: var(--shadow); }
+  .btn-ghost { background: var(--card); color: var(--text); border-color: var(--border); }
+
+  /* Phone mock-up. The frame is drawn in CSS so the asset stays a plain screenshot. */
+  .shot {
+    margin: 0; justify-self: center; position: relative;
+    width: 280px; padding: 10px;
+    background: linear-gradient(160deg, #3a3a3f, #17171a 45%, #2c2c31);
+    border-radius: 38px;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,.55),
+      0 24px 60px rgba(20,18,10,.28),
+      inset 0 1px 1px rgba(255,255,255,.14);
+  }
+  .shot img {
+    display: block; width: 100%; height: auto;
+    border-radius: 29px; background: #111;
+  }
+  /* speaker slit */
+  .shot::before {
+    content: ""; position: absolute; z-index: 2;
+    top: 20px; left: 50%; transform: translateX(-50%);
+    width: 54px; height: 5px; border-radius: 3px;
+    background: rgba(0,0,0,.75);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .shot { transition: transform .3s ease; }
+    .shot:hover { transform: translateY(-4px); }
+  }
+
+  /* ---------- sections ---------- */
+  section { padding: 64px 0; }
+  h2 { margin: 0 0 8px; font-size: 30px; letter-spacing: -.02em; font-weight: 750; }
+  .sub { margin: 0 0 36px; color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+  .feat { padding: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; }
+  .feat h3 { margin: 14px 0 6px; font-size: 17px; font-weight: 650; }
+  .feat p { margin: 0; color: var(--muted); font-size: 15px; }
+  .ico {
+    width: 38px; height: 38px; display: grid; place-items: center;
+    border-radius: 10px; background: var(--bg-soft); border: 1px solid var(--border);
+  }
+  .ico svg { width: 20px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 1.8; }
+
+  /* ---------- download ---------- */
+  .downloads { background: var(--bg-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 22px; }
+  .dl {
+    display: block; padding: 22px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 14px; text-decoration: none;
+    transition: transform .12s ease, border-color .12s ease;
+  }
+  .dl:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .dl.disabled { opacity: .55; pointer-events: none; }
+  .dl strong { display: block; font-size: 17px; margin-bottom: 3px; }
+  .dl span { color: var(--muted); font-size: 14px; }
+  .note { font-size: 14px; color: var(--muted); margin: 0; }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: .9em; background: var(--bg-soft); border: 1px solid var(--border);
+    border-radius: 5px; padding: 1px 6px;
+  }
+
+  /* ---------- footer ---------- */
+  footer { padding: 44px 0; color: var(--muted); font-size: 14px; border-top: 1px solid var(--border); }
+  footer a { color: var(--muted); }
+  .foot-row {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    justify-content: space-between; align-items: center; margin-bottom: 18px;
+  }
+  .fine { max-width: 65ch; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="bar">
+      <a class="brand" href="/">
+        <img src="app-icon.png" alt="">
+        ByteGym
+      </a>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+        <a href="https://github.com/wi-wissen/de.bytegym">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <div class="pill"><span class="dot"></span> Unofficial · open source · no tracking</div>
+      <h1>Your workouts.<br>Your numbers.<br><span class="glow">Your phone.</span></h1>
+      <p class="lede">
+        A small, open-source app for your eGym training data — strength progress over time,
+        how busy the gym is right now, and a leaderboard that only counts what you actually lifted.
+      </p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/wi-wissen/de.bytegym">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+          Source
+        </a>
+      </div>
+    </div>
+
+    <figure class="shot" id="shot">
+      <img src="app-screenshot.webp" width="840" height="1715"
+           alt="ByteGym's home screen: the gym's opening status, how many people are training right now, your last workout, your bio-age, training days and rank."
+           onerror="document.getElementById('shot').remove()">
+    </figure>
+  </div>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="sub">It talks to the same endpoints the official app uses — with your own account, showing your own data.</p>
+
+    <div class="grid">
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg></div>
+        <h3>Your whole history</h3>
+        <p>Strength per machine as one continuous curve — not cut off at the current month or year. You see whether you are actually moving.</p>
+      </div>
+
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+        <h3>How busy it is right now</h3>
+        <p>How many people are on the machines at this moment, plus a heatmap of the week so you can dodge the rush.</p>
+      </div>
+
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/></svg></div>
+        <h3>A leaderboard that means something</h3>
+        <p>Counts only workouts actually done on the gym's machines — a coupled watch or tracker buys you no rank. Rolling four-week window, so it never resets to zero on the first of the month.</p>
+      </div>
+
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>No tracking whatsoever</h3>
+        <p>No analytics, no telemetry, no ads, no third-party servers, no account with us. The app talks to eGym and to nobody else — there is nothing to opt out of.</p>
+      </div>
+
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div>
+        <h3>German and English</h3>
+        <p>Follows whatever language your phone is set to. Nothing to configure.</p>
+      </div>
+
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <h3>Open source</h3>
+        <p>MIT licensed. Read it, build it, change it — and check for yourself that the two claims above are true.</p>
+      </div>
+    </div>
+
+    <p class="note" style="margin-top:22px">
+      One honest caveat: the occupancy figure and the leaderboard can only see members who
+      have made their eGym profile visible to their gym. Everyone else is invisible to the
+      app, so the real gym is always at least as busy as the number says.
+    </p>
+  </div>
+</section>
+
+<section class="downloads" id="download">
+  <div class="wrap">
+    <h2>Download</h2>
+    <p class="sub" id="release-sub">Grab the latest build from the releases page.</p>
+
+    <div class="dl-grid">
+      <a class="dl" id="download-android" href="https://github.com/wi-wissen/de.bytegym/releases/latest">
+        <strong>Android</strong>
+        <span id="android-meta">Signed APK — install and go</span>
+      </a>
+      <span class="dl disabled">
+        <strong>iOS</strong>
+        <span>Not available — iOS has no sideloading, and an unofficial client is unlikely to pass App Store review</span>
+      </span>
+    </div>
+
+    <p class="note">
+      You sign in with your <strong>existing eGym account</strong> and your gym's studio code —
+      ByteGym does not create an account and cannot give you one.
+      Or build it yourself: <code>npx tauri android build --apk --target aarch64</code>; the
+      instructions are in the <a href="https://github.com/wi-wissen/de.bytegym#readme">readme</a>.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <a class="brand" href="/">
+        <img src="app-icon.png" alt="">
+        ByteGym
+      </a>
+      <div>
+        <a href="https://github.com/wi-wissen/de.bytegym">GitHub</a> ·
+        <a href="https://github.com/wi-wissen/de.bytegym/releases">Releases</a> ·
+        <a href="https://github.com/wi-wissen/de.bytegym/blob/main/LICENSE">MIT License</a> ·
+        <a href="https://github.com/wi-wissen/de.bytegym/blob/main/TRADEMARKS.md">Trademarks</a> ·
+        <a href="https://wi-wissen.de/impressum.html">Legal notice</a> ·
+        <a href="https://wi-wissen.de/datenschutz.html">Privacy</a>
+      </div>
+    </div>
+    <p class="fine">
+      The code is MIT licensed; the name "ByteGym" and the logo are not — see
+      <a href="https://github.com/wi-wissen/de.bytegym/blob/main/TRADEMARKS.md">TRADEMARKS.md</a>.
+      eGym is a trademark of EGYM SE. ByteGym is an independent, unofficial project and is not
+      affiliated with, endorsed by, or connected to EGYM SE in any way.
+    </p>
+  </div>
+</footer>
+
+<script>
+// Point the Android card straight at the newest APK and name its version. If the API
+// is unreachable or rate-limited — which happens, and silently — the card keeps its
+// /releases/latest href, which GitHub redirects to the current release anyway. So this
+// only ever adds detail; it can never take the download away.
+(async () => {
+  try {
+    const res = await fetch('https://api.github.com/repos/wi-wissen/de.bytegym/releases/latest')
+    if (!res.ok) return
+    const rel = await res.json()
+    const apk = (rel.assets || []).find((a) => a.name.endsWith('.apk'))
+    if (!apk) return
+
+    const mb = (apk.size / 1048576).toFixed(1)
+    const date = new Date(rel.published_at).toLocaleDateString('en-GB',
+      { year: 'numeric', month: 'long', day: 'numeric' })
+
+    document.getElementById('download-android').href = apk.browser_download_url
+    document.getElementById('android-meta').textContent =
+      `Signed APK · ${mb} MB · arm64`
+    document.getElementById('release-sub').textContent =
+      `Latest release: ${rel.tag_name} — ${date}.`
+  } catch {
+    /* keep the static fallback */
+  }
+})()
+</script>
+
+</body>
+</html>

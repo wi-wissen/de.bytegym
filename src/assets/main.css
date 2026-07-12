@@ -1,0 +1,61 @@
+/* Scope class detection to src/. Without this Tailwind auto-scans from the project
+   root, and since there is no .git dir here it can't apply .gitignore — so it walks
+   into src-tauri/target (8 GB of Rust artifacts) and the build runs out of memory. */
+@import "tailwindcss" source("../");
+
+body,
+#app,
+.view,
+.page,
+.page-content {
+  background: #fafafa;
+  color: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  body,
+  #app,
+  .view,
+  .page,
+  .page-content {
+    background: #171717;
+    color: #f5f5f5;
+  }
+}
+
+.sheet-modal.sheet-surface,
+.sheet-modal.sheet-surface .sheet-modal-inner {
+  background: #fafafa !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sheet-modal.sheet-surface,
+  .sheet-modal.sheet-surface .sheet-modal-inner {
+    background: #171717 !important;
+  }
+}
+
+/* Drag handle — the affordance for the swipe-to-close these sheets already have.
+   It hangs off .sheet-modal-inner, not off the sheet: F7 already owns
+   `.sheet-modal:not(.sheet-modal-top)::before` for the sheet's top hairline, at the
+   same specificity as any `.sheet-modal.sheet-surface::before` we could write — and
+   its stylesheet loads after ours, so it would win and we'd lose the handle.
+   The inner never scrolls (the content inside it does), so the handle stays pinned. */
+.sheet-modal.sheet-surface .sheet-modal-inner {
+  padding-top: 20px;
+}
+
+.sheet-modal.sheet-surface .sheet-modal-inner::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 10;
+}

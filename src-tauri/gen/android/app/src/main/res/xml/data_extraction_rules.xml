@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The app's private storage holds the session cookie and, if the user opted in to
+  "stay signed in", their password. None of that may leave the device, so both
+  backup paths (Android 12+ cloud backup and adb / device-to-device transfer) are
+  refused outright. `allowBackup="false"` in the manifest covers Android 11 and
+  below; this file covers 12 and above.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+    </device-transfer>
+</data-extraction-rules>

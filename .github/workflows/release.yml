@@ -1,0 +1,88 @@
+name: Release
+
+# Push a tag to cut a release:
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# The APK is arm64-v8a only. Every Android phone from roughly 2015 onwards is
+# arm64; x86/x86_64 are emulator targets and armeabi-v7a is long-obsolete
+# hardware. Carrying all four quadrupled the download for no one's benefit.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write # needed to create the release and upload the APK
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager --install "ndk;27.0.12077973"
+          echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.0.12077973" >> "$GITHUB_ENV"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      - name: Restore the signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.BYTEGYM_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::BYTEGYM_KEYSTORE_BASE64 is not set — the APK would be unsigned and could not be installed."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/bytegym-release.p12"
+
+      - name: Build signed APK (arm64)
+        env:
+          # build.gradle.kts reads these; environment always wins over .env
+          BYTEGYM_KEYSTORE_PATH: ${{ runner.temp }}/bytegym-release.p12
+          BYTEGYM_KEYSTORE_PASSWORD: ${{ secrets.BYTEGYM_KEYSTORE_PASSWORD }}
+          BYTEGYM_KEY_ALIAS: ${{ secrets.BYTEGYM_KEY_ALIAS }}
+          BYTEGYM_KEY_PASSWORD: ${{ secrets.BYTEGYM_KEY_PASSWORD }}
+        run: npx tauri android build --apk --target aarch64
+
+      - name: Name the APK after its version
+        id: apk
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          SRC=$(find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' | head -1)
+          OUT="bytegym-${VERSION}-android-arm64.apk"
+          cp "$SRC" "$OUT"
+          echo "path=$OUT" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse to publish an unsigned APK
+        run: |
+          APKSIGNER=$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner | sort | tail -1)
+          "$APKSIGNER" verify --print-certs "${{ steps.apk.outputs.path }}"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.apk.outputs.path }}
+          generate_release_notes: true

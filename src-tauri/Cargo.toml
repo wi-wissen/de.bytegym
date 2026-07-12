@@ -1,0 +1,36 @@
+[package]
+name = "bytegym"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "bytegym_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+# Without this, cargo ships the release library unstripped (debug symbols and all),
+# optimised for speed rather than size. For a WebView shell that does almost nothing
+# in Rust, that trade is backwards — the binary is the bulk of the APK.
+[profile.release]
+opt-level = "s"     # optimise for size
+lto = true          # drop everything unreachable across crate boundaries
+codegen-units = 1   # slower build, smaller output
+panic = "abort"     # no unwinding tables
+strip = true        # drop debug symbols
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-http = { version = "2", features = ["unsafe-headers"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+

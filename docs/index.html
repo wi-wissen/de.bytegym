@@ -103,27 +103,37 @@
   .btn-primary { background: var(--brand); color: var(--brand-ink); box-shadow: var(--shadow); }
   .btn-ghost { background: var(--card); color: var(--text); border-color: var(--border); }
 
-  /* Phone mock-up. The frame is drawn in CSS so the asset stays a plain screenshot. */
+  /* Phone mock-up, drawn in CSS so the asset stays a plain screenshot.
+     Modelled on a current Android flagship: thin uniform bezel, fairly square
+     corners, and a punch-hole camera rather than a notch or an earpiece slit. */
   .shot {
     margin: 0; justify-self: center; position: relative;
-    width: 280px; padding: 10px;
-    background: linear-gradient(160deg, #3a3a3f, #17171a 45%, #2c2c31);
-    border-radius: 38px;
+    width: 278px; padding: 6px;
+    background: linear-gradient(150deg, #55565c, #1d1e22 22%, #17181b 78%, #45464b);
+    border-radius: 26px;
     box-shadow:
-      0 0 0 1px rgba(0,0,0,.55),
-      0 24px 60px rgba(20,18,10,.28),
-      inset 0 1px 1px rgba(255,255,255,.14);
+      0 0 0 1px rgba(0,0,0,.6),
+      0 26px 64px rgba(20,18,10,.3),
+      inset 0 1px 1px rgba(255,255,255,.18);
   }
   .shot img {
     display: block; width: 100%; height: auto;
-    border-radius: 29px; background: #111;
+    border-radius: 21px; background: #0d0d0d;
   }
-  /* speaker slit */
+  /* punch-hole camera */
   .shot::before {
     content: ""; position: absolute; z-index: 2;
-    top: 20px; left: 50%; transform: translateX(-50%);
-    width: 54px; height: 5px; border-radius: 3px;
-    background: rgba(0,0,0,.75);
+    top: 16px; left: 50%; transform: translateX(-50%);
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #08090b;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.09);
+  }
+  /* power + volume keys on the right edge */
+  .shot::after {
+    content: ""; position: absolute; z-index: -1;
+    right: -2px; top: 96px;
+    width: 2px; height: 96px; border-radius: 2px;
+    background: linear-gradient(180deg, #4a4b50 0 34%, transparent 34% 44%, #4a4b50 44% 100%);
   }
   @media (prefers-reduced-motion: no-preference) {
     .shot { transition: transform .3s ease; }
@@ -240,8 +250,8 @@
 
       <div class="feat">
         <div class="ico"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/></svg></div>
-        <h3>A leaderboard that means something</h3>
-        <p>Counts only workouts actually done on the gym's machines — a coupled watch or tracker buys you no rank. Rolling four-week window, so it never resets to zero on the first of the month.</p>
+        <h3>A leaderboard that counts</h3>
+        <p>Only workouts on the gym's machines count — a paired watch earns no rank. Rolling four-week window, so nothing resets on the 1st.</p>
       </div>
 
       <div class="feat">

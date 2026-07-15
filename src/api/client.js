@@ -12,11 +12,19 @@ export const NP_GATEWAY = 'https://one.netpulse.com'
 export const MOBILE_API = 'https://mobile-api.int.api.egym.com'
 
 /**
- * Re-authentication on 401.
+ * The HTTP transport. Defaults to Tauri's native fetch; tests swap it out to drive
+ * the retry/reauth logic without a device. Same dependency inversion as the reauth
+ * handler below.
+ */
+let transport = tauriFetch
+export function setTransport(fn) { transport = fn }
+
+/**
+ * Re-authentication on 401/403.
  *
- * The server is the only thing that knows when a JSESSIONID has died, so a 401 is
- * the signal we act on — not a guessed lifetime. auth.js registers the handler
- * rather than us importing it, because auth.js already imports this module.
+ * The server is the only thing that knows when a JSESSIONID has died, so we act on
+ * its 401/403 — not a guessed lifetime. auth.js registers the handler rather than
+ * us importing it, because auth.js already imports this module.
  */
 let reauthHandler = null
 let reauthInFlight = null
@@ -57,24 +65,33 @@ export async function apiGet(url, extraHeaders = {}, retried = false) {
 
   let response
   try {
-    response = await tauriFetch(url, { method: 'GET', headers })
+    response = await transport(url, { method: 'GET', headers })
   } catch (e) {
     console.error(`[API GET ERROR] ${url}`, e)
     throw normalizeTauriError(e)
   }
 
-  // The session died. Sign back in and replay the request once — the retry has to
-  // go through apiGet again so it picks up the new cookie.
-  if (response.status === 401) {
+  // A session can die mid-use. eGym signals that with 401, and on some endpoints
+  // (e.g. the gym feed) with 403 "Access is denied". Both mean the same thing:
+  // sign back in and replay the request once, so it picks up the fresh cookie.
+  if (response.status === 401 || response.status === 403) {
     if (!retried && await reauthenticate()) {
       return apiGet(url, extraHeaders, true)
     }
-    // We cannot get back in. Flag it so the UI treats this as "please log in
-    // again" rather than as a crash to report.
-    const err = new Error('session_expired')
-    err.sessionExpired = true
-    err.status = 401
-    throw err
+    // We could not recover — either reauth was impossible/failed (we are now
+    // logged out), or a fresh session still gets a 401. Tell the UI to send the
+    // user to login instead of showing a crash report.
+    //
+    // A *retried* 403 is the one exception: the new session works, but this
+    // resource is genuinely forbidden. That is a real error, not a dead session,
+    // so let it fall through to the normal handler below rather than bouncing the
+    // user to login forever.
+    if (!(retried && response.status === 403)) {
+      const err = new Error('session_expired')
+      err.sessionExpired = true
+      err.status = response.status
+      throw err
+    }
   }
 
   if (!response.ok) {
@@ -116,7 +133,7 @@ export async function apiPost(url, body, extraHeaders = {}) {
   }
 
   try {
-    const response = await tauriFetch(url, { method: 'POST', body, headers })
+    const response = await transport(url, { method: 'POST', body, headers })
     return response
   } catch (e) {
     console.error(`[API POST ERROR] ${url}`, e)

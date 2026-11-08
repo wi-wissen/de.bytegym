@@ -57,6 +57,10 @@ jobs:
           java-version: 17
 
       - uses: android-actions/setup-android@v3
+        with:
+          # The default list includes the legacy 'tools' package, which current
+          # cmdline-tools (16.0 on the runner) no longer offer, and the step fails.
+          packages: platform-tools
 
       - name: Install Android NDK
         run: |

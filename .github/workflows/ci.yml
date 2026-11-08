@@ -1,0 +1,83 @@
+name: CI
+
+# Every PR and every push to main: the web app builds and its test suites pass,
+# and the Android shell (Kotlin, Gradle, Rust) still compiles. Nothing is signed
+# or published here — that is release.yml.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Build & test (web)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        # The suites drive a Chromium through playwright-core; the runner image
+        # ships Google Chrome, so nothing is downloaded.
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: npm test
+
+  android:
+    name: Compile (Android, debug)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+        with:
+          # The default list includes the legacy 'tools' package, which current
+          # cmdline-tools (16.0 on the runner) no longer offer, and the step fails.
+          packages: platform-tools
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager --install "ndk;27.0.12077973"
+          echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.0.12077973" >> "$GITHUB_ENV"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      # Debug build: no keystore needed, and it compiles the same MainActivity.kt,
+      # resources and Rust library the release does.
+      - name: Build debug APK (arm64)
+        run: npx tauri android build --debug --apk --target aarch64

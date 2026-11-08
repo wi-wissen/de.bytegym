@@ -180,16 +180,22 @@ Output lands in `src-tauri/gen/android/app/build/outputs/apk/`.
 
 ### 4) Cutting a release
 
-Releases are built by CI, not by hand:
+Releases are built by CI, not by hand. Bump the version in `package.json`,
+`src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`, merge, then either:
 
-```sh
-git tag v0.1.0 && git push origin v0.1.0
-```
+- **Actions → Release → Run workflow**, enter the version (e.g. `0.2.0`). The release
+  step creates the tag `v0.2.0` on that commit itself; nobody pushes a tag.
+- or push a tag: `git tag v0.2.0 && git push origin v0.2.0`
 
-[`.github/workflows/release.yml`](.github/workflows/release.yml) builds the arm64 APK,
-signs it, refuses to publish it if the signature does not verify, and attaches it to a
-GitHub release as `bytegym-<version>-android-arm64.apk`. [bytegym.de](https://bytegym.de)
+[`.github/workflows/release.yml`](.github/workflows/release.yml) refuses a version that
+doesn't match `tauri.conf.json`, builds the arm64 APK, signs it, refuses to publish it if
+the signature does not verify, and attaches it to a GitHub release as
+`bytegym-<version>-android-arm64.apk`. [bytegym.de](https://bytegym.de)
 (served from [`docs/`](docs) via GitHub Pages) always links to the newest one.
+
+Every pull request also runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml): the
+web build and all test suites, and a debug Android build that proves the Kotlin shell and
+Rust library still compile.
 
 This needs four repository secrets — **Settings → Secrets and variables → Actions**:
 

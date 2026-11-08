@@ -1,8 +1,14 @@
 name: Release
 
-# Push a tag to cut a release:
+# Two ways to cut a release:
 #
-#   git tag v0.1.0 && git push origin v0.1.0
+#   1. Actions -> Release -> "Run workflow", enter the version (e.g. 0.2.0).
+#      The tag v0.2.0 is created by the release step itself, on the commit the
+#      workflow ran on — nobody has to push a tag.
+#   2. Push a tag: git tag v0.2.0 && git push origin v0.2.0
+#
+# Either way the version must match src-tauri/tauri.conf.json, which is what the
+# APK reports about itself; bump that first.
 #
 # The APK is arm64-v8a only. Every Android phone from roughly 2015 onwards is
 # arm64; x86/x86_64 are emulator targets and armeabi-v7a is long-obsolete
@@ -12,6 +18,10 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, without the leading v (e.g. 0.2.0). Must match src-tauri/tauri.conf.json.'
+        required: true
 
 permissions:
   contents: write # needed to create the release and upload the APK
@@ -21,6 +31,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolve and check the version
+        id: version
+        # Tag v1.2.3 -> 1.2.3; a manual run takes the input. The input goes through
+        # env, never ${{ }} inside the script, so its text can't run as shell code.
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then VERSION="$INPUT_VERSION"; else VERSION="${GITHUB_REF_NAME#v}"; fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::'$VERSION' is not a version like 1.2.3"
+            exit 1
+          fi
+          # The APK takes its versionName/versionCode from tauri.conf.json, not from
+          # the tag. A mismatch would publish a "0.3.0" file that calls itself 0.2.0
+          # and won't install over the real 0.2.0.
+          CONF=$(jq -r .version src-tauri/tauri.conf.json)
+          if [ "$VERSION" != "$CONF" ]; then
+            echo "::error::Release $VERSION does not match src-tauri/tauri.conf.json version $CONF. Bump it first."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4
         with:
@@ -71,7 +103,7 @@ jobs:
       - name: Name the APK after its version
         id: apk
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${{ steps.version.outputs.version }}"
           SRC=$(find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' | head -1)
           OUT="bytegym-${VERSION}-android-arm64.apk"
           cp "$SRC" "$OUT"
@@ -84,5 +116,9 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
+          # Creates the tag on this exact commit when it doesn't exist yet (manual run).
+          tag_name: v${{ steps.version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: ByteGym ${{ steps.version.outputs.version }}
           files: ${{ steps.apk.outputs.path }}
           generate_release_notes: true

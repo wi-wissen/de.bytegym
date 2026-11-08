@@ -13,7 +13,7 @@
     <div
       v-for="(week, wi) in weeks"
       :key="wi"
-      class="mb-1 cursor-pointer"
+      class="mb-1 ripple relative overflow-hidden"
       @click="$emit('week-tap', week)"
     >
       <!-- Wochen-Label -->
@@ -27,7 +27,7 @@
           :key="di"
           :title="dayTitle(day)"
           :style="cellStyle(day)"
-          class="aspect-square rounded-md transition-opacity"
+          class="aspect-square rounded-md"
         />
       </div>
     </div>
@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import { dateLocale } from '../../i18n/index.js'
 import { buildWeekHeatmap, intensityLevelDynamic, intensityStyle } from '../../utils/heatmap.js'
 
 export default {
@@ -84,10 +85,10 @@ export default {
 
   methods: {
     weekLabel(weekStart) {
-      return weekStart.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+      return weekStart.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit' })
         + ' – '
         + new Date(weekStart.getTime() + 6 * 86400000)
-            .toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+            .toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit' })
     },
 
     cellStyle(day) {
@@ -99,7 +100,7 @@ export default {
     },
 
     dayTitle(day) {
-      const d = day.date.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })
+      const d = day.date.toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit' })
       return `${d}: ${day.count} ${this.$t('studio.trainers')}`
     },
 

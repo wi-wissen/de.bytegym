@@ -10,7 +10,7 @@
     <f7-page-content style="padding: 0 16px 32px;">
       <!-- Title -->
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-        <span style="font-size: 20px;">⚠️</span>
+        <f7-icon material="error_outline" size="22px" class="text-error" />
         <h2 style="margin: 0; font-size: 16px; font-weight: 700;">{{ $t('errorDialog.title') }}</h2>
       </div>
       <p style="font-size: 13px; opacity: 0.6; margin: 0 0 16px;">

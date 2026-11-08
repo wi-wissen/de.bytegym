@@ -51,6 +51,7 @@
 </template>
 
 <script>
+import { dateLocale } from '../../i18n/index.js'
 import { buildHourHeatmap, intensityLevelDynamic, intensityStyle } from '../../utils/heatmap.js'
 import { slotLabel } from '../../utils/time.js'
 
@@ -77,9 +78,9 @@ export default {
     },
 
     weekLabel() {
-      const from = this.weekStart.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+      const from = this.weekStart.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit' })
       const toDate = new Date(this.weekStart.getTime() + 6 * 86400000)
-      const to = toDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      const to = toDate.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' })
       return `${from} – ${to}`
     },
 

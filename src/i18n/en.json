@@ -130,6 +130,8 @@
   "noData": "No data available",
   "error": "Error loading data",
   "retry": "Try again",
+  "refresh": "Refresh",
+  "close": "Close",
   "errorDialog": {
     "title": "Unexpected Error",
     "sendHint": "Something went wrong. Please copy the details and send them to the developer.",

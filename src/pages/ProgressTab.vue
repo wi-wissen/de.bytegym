@@ -8,7 +8,7 @@
       </p>
 
       <!-- Overall bio age banner -->
-      <f7-card :class="bioAgeCardClass" class="rounded-2xl shadow-sm m-0 cursor-pointer mt-0!" @click="showBioAgeSheet = true">
+      <f7-card :class="bioAgeCardClass" class="rounded-2xl shadow-sm m-0 ripple relative overflow-hidden mt-0!" @click="showBioAgeSheet = true">
         <f7-card-content class="p-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -71,55 +71,43 @@
     </div>
 
     <!-- Detail sheet -->
-    <f7-sheet
-      ref="metricSheet"
+    <app-sheet
       :opened="!!selectedMetric"
-      @sheet:closed="selectedMetric = null"
-      @sheet:opened="onMetricSheetOpened"
-      swipe-to-close
-      :breakpoints="[1]"
-      :backdrop-breakpoint="0"
-      backdrop
-      style="--f7-sheet-height: 95vh; height: 95vh"
-      class="h-[95vh] rounded-t-2xl sheet-surface"
+      :title="$t('strengthDetail.history')"
+      @closed="selectedMetric = null"
     >
       <strength-detail
         v-if="selectedMetric"
         :metric="selectedMetric"
-        @close="selectedMetric = null"
       />
-    </f7-sheet>
+    </app-sheet>
 
-    <f7-sheet
+    <app-sheet
       :opened="showBioAgeSheet"
-      @sheet:closed="showBioAgeSheet = false"
-      swipe-to-close
-      :breakpoints="[1]"
-      :backdrop-breakpoint="0"
-      backdrop
-      style="--f7-sheet-height: 95vh; height: 95vh"
-      class="rounded-t-2xl sheet-surface"
+      :title="$t('progress.totalBioAge')"
+      @closed="showBioAgeSheet = false"
     >
       <bio-age-history-panel
         :opened="showBioAgeSheet"
         :chronological-age="chronologicalAge"
-        @close="showBioAgeSheet = false"
       />
-    </f7-sheet>
+    </app-sheet>
   </div>
 </template>
 
 <script>
+import { dateLocale } from '../i18n/index.js'
 import { strengthStore } from '../store/strength.js'
 import { loadLatestMetrics, loadBioAge } from '../api/strength.js'
 import StrengthCard from '../components/cards/StrengthCard.vue'
 import StrengthDetail from './StrengthDetail.vue'
 import BioAgeHistoryPanel from '../components/bioage/BioAgeHistoryPanel.vue'
+import AppSheet from '../components/AppSheet.vue'
 
 export default {
   name: 'ProgressTab',
 
-  components: { StrengthCard, StrengthDetail, BioAgeHistoryPanel },
+  components: { StrengthCard, StrengthDetail, BioAgeHistoryPanel, AppSheet },
 
   data() {
     return {
@@ -208,7 +196,7 @@ export default {
   methods: {
     formatTime(iso) {
       if (!iso) return ''
-      return new Date(iso).toLocaleString('de-DE', {
+      return new Date(iso).toLocaleString(dateLocale(), {
         weekday: 'short',
         day: '2-digit',
         month: '2-digit',
@@ -242,9 +230,6 @@ export default {
       }
     },
 
-    onMetricSheetOpened(sheet) {
-      sheet?.setBreakpoint?.(1)
-    },
 
     openDetail(metric) {
       this.selectedMetric = metric

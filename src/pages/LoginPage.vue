@@ -8,11 +8,15 @@
       <p class="text-sm opacity-60 mt-1 text-center">{{ $t('login.subtitle') }}</p>
     </f7-block>
 
+    <!-- A real form: the keyboard's Go/Enter key submits it. -->
+    <form @submit.prevent="handleLogin">
     <f7-list inset>
       <!-- Email -->
       <f7-list-input
         type="email"
-        :placeholder="$t('login.email')"
+        outline
+        floating-label
+        :label="$t('login.email')"
         :value="email"
         @input="email = $event.target.value"
         autocomplete="email"
@@ -23,7 +27,9 @@
       <!-- Password -->
       <f7-list-input
         :type="showPassword ? 'text' : 'password'"
-        :placeholder="$t('login.password')"
+        outline
+        floating-label
+        :label="$t('login.password')"
         :value="password"
         @input="password = $event.target.value"
         autocomplete="current-password"
@@ -41,7 +47,9 @@
       <!-- Studio code -->
       <f7-list-input
         type="text"
-        :placeholder="$t('login.studioCode')"
+        outline
+        floating-label
+        :label="$t('login.studioCode')"
         :value="studioCode"
         @focus="hardenStudioInput"
         @input="onStudioCodeInput"
@@ -72,14 +80,16 @@
 
     <f7-block class="mx-4">
       <f7-button
+        type="submit"
         fill
         large
         :disabled="loading"
-        @click="handleLogin"
       >
+        <f7-preloader v-if="loading" :size="20" class="mr-2" color="white" />
         {{ loading ? $t('login.loggingIn') : $t('login.loginButton') }}
       </f7-button>
     </f7-block>
+    </form>
   </f7-page>
 </template>
 

@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# MainActivity's insets bridge (window.ByteGymInsets.get()) is called by name from
+# JavaScript; R8 must neither rename nor strip it.
+-keepclassmembers class de.bytegym.MainActivity$InsetsBridge {
+  @android.webkit.JavascriptInterface public <methods>;
+}

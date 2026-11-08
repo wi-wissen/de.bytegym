@@ -2,13 +2,15 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="icon" type="image/png" href="/app-icon.png" />
+    <!-- No pinch-zoom: a native app scales with the system font size (which the
+         WebView honours), not by zooming the whole UI. `viewport-fit=cover` lets the
+         page draw behind the system bars; the safe-area insets keep content clear. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <title>ByteGym</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Icons&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <!-- Fonts are bundled (src/main.js), not fetched from Google: the app has to
+         render its icons offline, and shouldn't tell a third party it was opened. -->
   </head>
 
   <body>

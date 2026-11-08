@@ -1,3 +1,4 @@
+import { dateLocale } from '../i18n/index.js'
 /** Format date as ISO string (YYYY-MM-DD). */
 export function formatDateISO(date) {
   const d = new Date(date)
@@ -14,13 +15,13 @@ export function subtractDays(date, days) {
 /** Format time as HH:MM. */
 export function formatTime(date) {
   const d = new Date(date)
-  return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
 }
 
 /** Format date as DD.MM.YYYY. */
 export function formatDate(date) {
   const d = new Date(date)
-  return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return d.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 /** Relative day label ("today", "yesterday", "X days ago"). */

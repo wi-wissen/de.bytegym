@@ -9,11 +9,18 @@
       <template #right>
         <div class="flex items-center gap-1">
           <f7-link
-            :icon-material="refreshing ? 'hourglass_top' : 'refresh'"
+            icon-material="refresh"
+            :aria-label="$t('refresh')"
             @click="refreshActiveTab"
-            :class="refreshing ? 'opacity-50 pointer-events-none' : 'text-on-surface-variant'"
+            class="text-on-surface-variant"
           />
-          <f7-link v-if="activeTab === 'home'" icon-material="logout" @click="confirmLogout" class="text-amber-700" />
+          <f7-link
+            v-if="activeTab === 'home'"
+            icon-material="logout"
+            :aria-label="$t('home.logout')"
+            @click="confirmLogout"
+            class="text-on-surface-variant"
+          />
         </div>
       </template>
     </f7-navbar>
@@ -23,19 +30,19 @@
          Material 3 nav-bar height and keeps the page-content bottom offset in sync -->
     <f7-toolbar tabbar icons bottom class="border-t border-neutral-200/90 dark:border-neutral-700/70">
       <f7-toolbar-pane>
-        <f7-link tab-link="#tab-home" tab-link-active @click="activeTab = 'home'">
+        <f7-link tab-link="#tab-home" tab-link-active>
           <f7-icon material="home" size="24px" />
           <span class="tabbar-label">{{ $t('tabs.home') }}</span>
         </f7-link>
-        <f7-link tab-link="#tab-progress" @click="activeTab = 'progress'">
+        <f7-link tab-link="#tab-progress">
           <f7-icon material="show_chart" size="24px" />
           <span class="tabbar-label">{{ $t('tabs.progress') }}</span>
         </f7-link>
-        <f7-link tab-link="#tab-studio" @click="activeTab = 'studio'">
+        <f7-link tab-link="#tab-studio">
           <f7-icon material="fitness_center" size="24px" />
           <span class="tabbar-label">{{ $t('tabs.studio') }}</span>
         </f7-link>
-        <f7-link tab-link="#tab-leaderboard" @click="activeTab = 'leaderboard'">
+        <f7-link tab-link="#tab-leaderboard">
           <f7-icon material="emoji_events" size="24px" />
           <span class="tabbar-label">{{ $t('tabs.leaderboard') }}</span>
         </f7-link>
@@ -48,20 +55,23 @@
          carries both the tab and the pull-to-refresh behaviour. -->
     <f7-tabs>
       <f7-page-content id="tab-home" tab tab-active
-        ptr @ptr:refresh="(done) => $refs.startTab.onRefresh(done)">
+        ptr @ptr:refresh="(done) => $refs.startTab.onRefresh(done)"
+        @tab:show="activeTab = 'home'">
         <start-tab ref="startTab" @open-studio-tab="openStudioTab" />
       </f7-page-content>
       <f7-page-content id="tab-progress" tab
-        ptr @ptr:refresh="(done) => $refs.progressTab.onRefresh(done)">
+        ptr @ptr:refresh="(done) => $refs.progressTab.onRefresh(done)"
+        @tab:show="activeTab = 'progress'">
         <progress-tab ref="progressTab" />
       </f7-page-content>
       <f7-page-content id="tab-studio" tab
         ptr @ptr:refresh="(done) => $refs.studioTab.onRefresh(done)"
-        @tab:show="$refs.studioTab?.onTabShow()">
+        @tab:show="activeTab = 'studio'; $refs.studioTab?.onTabShow()">
         <studio-tab ref="studioTab" />
       </f7-page-content>
       <f7-page-content id="tab-leaderboard" tab
-        ptr @ptr:refresh="(done) => $refs.leaderboardTab.onRefresh(done)">
+        ptr @ptr:refresh="(done) => $refs.leaderboardTab.onRefresh(done)"
+        @tab:show="activeTab = 'leaderboard'">
         <leaderboard-tab ref="leaderboardTab" />
       </f7-page-content>
     </f7-tabs>
@@ -78,6 +88,7 @@ import StartTab from './StartTab.vue'
 import ProgressTab from './ProgressTab.vue'
 import StudioTab from './StudioTab.vue'
 import LeaderboardTab from './LeaderboardTab.vue'
+import { setRootBackHandler } from '../utils/backDismiss.js'
 
 export default {
   name: 'MainPage',
@@ -86,8 +97,7 @@ export default {
 
   data() {
     return {
-      activeTab: 'home',
-      refreshing: false
+      activeTab: 'home'
     }
   },
 
@@ -109,37 +119,28 @@ export default {
     }
   },
 
+  watch: {
+    // Android navigation: back from any other tab returns to Home first; only back
+    // from Home leaves the app.
+    activeTab(tab) {
+      setRootBackHandler(tab === 'home' ? null : () => f7.tab.show('#tab-home'))
+    }
+  },
+
+  beforeUnmount() {
+    setRootBackHandler(null)
+  },
+
   methods: {
-    async refreshActiveTab() {
-      if (this.refreshing) return
-      this.refreshing = true
-
-      try {
-        const donePromise = new Promise((resolve) => {
-          if (this.activeTab === 'home') {
-            return this.$refs.startTab?.onRefresh?.(resolve)
-          }
-          if (this.activeTab === 'progress') {
-            return this.$refs.progressTab?.onRefresh?.(resolve)
-          }
-          if (this.activeTab === 'studio') {
-            return this.$refs.studioTab?.onRefresh?.(resolve)
-          }
-          if (this.activeTab === 'leaderboard') {
-            return this.$refs.leaderboardTab?.onRefresh?.(resolve)
-          }
-          resolve()
-        })
-
-        await donePromise
-      } finally {
-        this.refreshing = false
-      }
+    // Runs the same pull-to-refresh as the gesture, so the button shows the same
+    // spinner and goes through the same `ptr:refresh` handler.
+    refreshActiveTab() {
+      const el = document.querySelector(`#tab-${this.activeTab}`)
+      if (el && !el.classList.contains('ptr-refreshing')) f7.ptr.refresh(el)
     },
 
     openStudioTab() {
       f7.tab.show('#tab-studio')
-      this.activeTab = 'studio'
     },
 
     confirmLogout() {

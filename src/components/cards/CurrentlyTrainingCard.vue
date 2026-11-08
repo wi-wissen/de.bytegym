@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import { dateLocale } from '../../i18n/index.js'
 export default {
   name: 'CurrentlyTrainingCard',
 
@@ -93,7 +94,7 @@ export default {
 
     freshTime() {
       if (!this.loadedAt) return '–'
-      return new Date(this.loadedAt).toLocaleTimeString('de-DE', {
+      return new Date(this.loadedAt).toLocaleTimeString(dateLocale(), {
         hour: '2-digit', minute: '2-digit'
       })
     }

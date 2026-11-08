@@ -42,7 +42,7 @@
           :key="entry.userId"
           :ref="entry.isMe ? 'myEntry' : undefined"
           :class="[
-            'bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-3 shadow-sm cursor-pointer active:opacity-80 transition-opacity',
+            'bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-3 shadow-sm ripple relative overflow-hidden',
             entry.isMe ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800' : ''
           ]"
           @click="openUserHistory(entry)"
@@ -66,7 +66,7 @@
 
               <div class="h-1.5 rounded-full bg-neutral-100 dark:bg-neutral-700 overflow-hidden">
                 <div
-                  class="h-full bg-amber-400 rounded-full transition-all duration-500"
+                  class="h-full bg-amber-400 rounded-full duration-500"
                   :style="{ width: progressPct(entry) + '%' }"
                 />
               </div>
@@ -79,51 +79,40 @@
   </div>
 
   <!-- User history sheet -->
-  <f7-sheet
-    ref="leaderboardUserSheet"
+  <app-sheet
     :opened="!!selectedUser"
-    @sheet:closed="selectedUser = null"
-    @sheet:opened="onUserSheetOpened"
-    swipe-to-close
-    :breakpoints="[1]"
-    :backdrop-breakpoint="0"
-    backdrop
-    style="--f7-sheet-height: 95vh; height: 95vh"
-    class="h-[95vh] rounded-t-2xl sheet-surface"
+    :title="selectedUser?.displayName || ''"
+    :subtitle="$t('leaderboard.trainingHistory')"
+    @closed="selectedUser = null"
   >
-    <div class="flex flex-col h-full">
-      <div class="flex items-center justify-between px-4 pt-1 pb-2 sticky top-0 bg-background z-10">
-        <div>
-          <h3 class="font-bold text-on-surface text-base">{{ selectedUser?.displayName }}</h3>
-          <p class="text-xs text-on-surface-variant">{{ $t('leaderboard.trainingHistory') }}</p>
-        </div>
-        <f7-link @click="selectedUser = null" class="text-on-surface-variant text-xl">✕</f7-link>
+    <div class="flex flex-col gap-1">
+      <div
+        v-for="day in userTrainingDays"
+        :key="day.date"
+        class="flex items-center justify-between py-2 border-b border-outline-variant text-sm"
+      >
+        <span class="text-on-surface">{{ day.dateLabel }}</span>
+        <span class="text-on-surface-variant text-xs">{{ day.exerciseCount }} {{ $t('home.exercises') }} · {{ day.points }} Pts</span>
       </div>
-      <div class="overflow-y-auto px-4 pb-8 flex flex-col gap-1">
-        <div
-          v-for="day in userTrainingDays"
-          :key="day.date"
-          class="flex items-center justify-between py-2 border-b border-outline-variant text-sm"
-        >
-          <span class="text-on-surface">{{ day.dateLabel }}</span>
-          <span class="text-on-surface-variant text-xs">{{ day.exerciseCount }} {{ $t('home.exercises') }} · {{ day.points }} Pts</span>
-        </div>
-        <p v-if="!userTrainingDays.length" class="text-sm text-on-surface-variant italic text-center py-8">
-          {{ $t('leaderboard.noData') }}
-        </p>
-      </div>
+      <p v-if="!userTrainingDays.length" class="text-sm text-on-surface-variant italic text-center py-8">
+        {{ $t('leaderboard.noData') }}
+      </p>
     </div>
-  </f7-sheet>
+  </app-sheet>
 </template>
 
 <script>
+import { dateLocale } from '../i18n/index.js'
 import { feedStore } from '../store/feed.js'
 import { sessionStore } from '../store/session.js'
 import { buildLeaderboard, rankDisplay, progressPercent } from '../utils/leaderboard.js'
 import { updateFeed } from '../api/feed.js'
+import AppSheet from '../components/AppSheet.vue'
 
 export default {
   name: 'LeaderboardTab',
+
+  components: { AppSheet },
 
   data() {
     return {
@@ -158,12 +147,12 @@ export default {
 
     fromFormatted() {
       const d = this.leaderboardData.fromDate
-      return d ? d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''
+      return d ? d.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''
     },
 
     toFormatted() {
       const d = this.leaderboardData.toDate
-      return d ? d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''
+      return d ? d.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''
     },
 
     userTrainingDays() {
@@ -186,20 +175,11 @@ export default {
         entry.points += Number(item.totalPerDay || exercises.length || 0)
         entry.exerciseCount += Number(item.totalPerDay || exercises.length || 0)
       }
-      // Debug: verify whether `totalPerDay` is available (instead of sampled exercise length)
-      const sample = items.slice(0, 5).map(i => ({
-        id: i.id,
-        day: String(i.createdAt || '').split('T')[0],
-        totalPerDay: i.totalPerDay,
-        exercisesLen: (i.payload?.exercises || []).length,
-        dataSources: [...new Set((i.payload?.exercises || []).map(e => e?.dataSource).filter(Boolean))]
-      }))
-      console.log('[leaderboard][devices-debug] sample:', sample)
       return [...dayMap.values()]
         .sort((a, b) => b.date.localeCompare(a.date))
         .map(d => ({
           ...d,
-          dateLabel: new Date(d.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit' })
+          dateLabel: new Date(d.date).toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit' })
         }))
     }
   },
@@ -239,9 +219,6 @@ export default {
       this.selectedUser = entry
     },
 
-    onUserSheetOpened(sheet) {
-      sheet?.setBreakpoint?.(1)
-    },
 
     scrollToMe() {
       const myEl = this.$refs.myEntry

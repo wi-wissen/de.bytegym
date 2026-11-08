@@ -4,9 +4,9 @@
 @import "tailwindcss" source("../");
 
 /* ── Design tokens ────────────────────────────────────────────────────────────
-   Material 3 colour roles for an amber brand. Framework7's automatic palette turns
-   amber into brown and puts white text on it (2:1 contrast), so the roles are set
-   by hand. Everything reads from these: Framework7 (mapped below), Tailwind
+   Material 3 colour roles on neutral (zinc) surfaces with amber as the accent.
+   Framework7's automatic palette tints every surface from the accent (beige/brown)
+   and puts white text on amber (2:1 contrast), so the roles are set by hand. Everything reads from these: Framework7 (mapped below), Tailwind
    (`bg-surface-container`, `text-on-surface-variant`… via @theme), the charts.
 
    Only Material roles live here, not "md-*" names: if the app ever ships with
@@ -15,64 +15,65 @@
    `--c-surface` is also the Android window background — keep it in sync with
    `app_background` in the Android colors.xml (values, values-night). */
 :root {
-  --c-brand: #f59e0b;              /* filled buttons, highlights */
-  --c-on-brand: #2b1700;
+  --c-brand: #f59e0b;              /* filled buttons, progress, charts */
+  --c-on-brand: #1c1100;
 
-  --c-primary: #8b5000;            /* text, icons, active state */
+  --c-primary: #b45309;            /* accent text and icons (amber-700: readable on white) */
   --c-on-primary: #ffffff;
-  --c-primary-container: #ffdcbd;
-  --c-on-primary-container: #2c1600;
-  --c-secondary-container: #f8dfc7;  /* nav indicator, tonal chips */
-  --c-on-secondary-container: #2a1906;
+  --c-primary-container: #fef3c7;  /* icon chips, own-rank card, nav indicator */
+  --c-on-primary-container: #78350f;
+  --c-secondary-container: #fef3c7;
+  --c-on-secondary-container: #78350f;
 
-  --c-surface: #fcf8f4;
+  /* Neutral surfaces: light grey page, white cards. The amber stays an accent. */
+  --c-surface: #f4f4f5;
   --c-surface-container-lowest: #ffffff;
-  --c-surface-container-low: #f7f1ec;
-  --c-surface-container: #f1ebe5;
-  --c-surface-container-high: #ebe5df;
-  --c-surface-container-highest: #e5dfd9;
-  --c-on-surface: #1f1b16;
-  --c-on-surface-variant: #51453a;
-  --c-outline: #837568;
-  --c-outline-variant: #d5c4b5;
+  --c-surface-container-low: #ffffff;
+  --c-surface-container: #f4f4f5;
+  --c-surface-container-high: #ebebee;
+  --c-surface-container-highest: #e4e4e7;
+  --c-on-surface: #18181b;
+  --c-on-surface-variant: #52525b;
+  --c-outline: #a1a1aa;
+  --c-outline-variant: #e4e4e7;
 
-  --c-success: #1b6d32;
-  --c-success-container: #c4efc8;
-  --c-on-success-container: #00210a;
-  --c-error: #ba1a1a;
-  --c-error-container: #ffdad6;
-  --c-on-error-container: #410002;
+  --c-success: #15803d;
+  --c-success-container: #dcfce7;
+  --c-on-success-container: #14532d;
+  --c-error: #dc2626;
+  --c-error-container: #fee2e2;
+  --c-on-error-container: #7f1d1d;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --c-brand: #f5a524;
-    --c-on-brand: #2b1700;
+    --c-brand: #f59e0b;
+    --c-on-brand: #1c1100;
 
-    --c-primary: #ffb870;
-    --c-on-primary: #4a2800;
-    --c-primary-container: #693c00;
-    --c-on-primary-container: #ffdcbd;
-    --c-secondary-container: #59432e;
-    --c-on-secondary-container: #f8dfc7;
+    --c-primary: #fbbf24;
+    --c-on-primary: #1c1100;
+    --c-primary-container: #3a2a0c;
+    --c-on-primary-container: #fde68a;
+    --c-secondary-container: #3a2a0c;
+    --c-on-secondary-container: #fde68a;
 
-    --c-surface: #17130f;
-    --c-surface-container-lowest: #110e0a;
-    --c-surface-container-low: #1f1b17;
-    --c-surface-container: #241f1b;
-    --c-surface-container-high: #2e2925;
-    --c-surface-container-highest: #39342f;
-    --c-on-surface: #ece0d6;
-    --c-on-surface-variant: #d5c4b5;
-    --c-outline: #9e8e81;
-    --c-outline-variant: #51453a;
+    --c-surface: #09090b;
+    --c-surface-container-lowest: #000000;
+    --c-surface-container-low: #18181b;
+    --c-surface-container: #1f1f23;
+    --c-surface-container-high: #27272a;
+    --c-surface-container-highest: #303036;
+    --c-on-surface: #fafafa;
+    --c-on-surface-variant: #a1a1aa;
+    --c-outline: #71717a;
+    --c-outline-variant: #27272a;
 
-    --c-success: #8ad897;
-    --c-success-container: #005321;
-    --c-on-success-container: #a6f5b1;
-    --c-error: #ffb4ab;
-    --c-error-container: #93000a;
-    --c-on-error-container: #ffdad6;
+    --c-success: #4ade80;
+    --c-success-container: #0f2e1a;
+    --c-on-success-container: #bbf7d0;
+    --c-error: #f87171;
+    --c-error-container: #3b1212;
+    --c-on-error-container: #fecaca;
   }
 }
 
@@ -128,9 +129,9 @@
   --f7-md-outline: var(--c-outline);
   --f7-md-outline-variant: var(--c-outline-variant);
 
-  /* Top app bar sits on the page colour; the navigation bar is one tone up. */
+  /* Top app bar sits on the page colour; the navigation bar on the card colour. */
   --f7-navbar-bg-color: var(--c-surface);
-  --f7-toolbar-bg-color: var(--c-surface-container);
+  --f7-toolbar-bg-color: var(--c-surface-container-low);
   --f7-page-bg-color: var(--c-surface);
 
   /* Filled buttons carry the brand colour, with dark text for contrast. */

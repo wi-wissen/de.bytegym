@@ -26,7 +26,7 @@ export default {
         darkMode: 'auto',
         // Framework7 still derives its palette from this, but main.css maps every
         // role it uses onto the app's own tokens.
-        colors: { primary: '#8B5000' },
+        colors: { primary: '#B45309' },
         routes,
       }
     }

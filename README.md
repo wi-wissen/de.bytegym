@@ -41,6 +41,22 @@ It is focused on **public profile and studio feed data** and provides quick visi
 - State stores: [src/store](src/store)
 - Tauri config/backend: [src-tauri](src-tauri)
 
+## Design
+
+Colours come from one token set in [`src/assets/main.css`](src/assets/main.css):
+Material 3 colour roles (`--c-surface`, `--c-on-surface-variant`, `--c-primary-container`,
+`--c-success-container`, …) on neutral surfaces, with amber as the accent, for light and
+dark. Framework7's Material variables are mapped onto them, and Tailwind exposes them as
+utilities (`bg-surface-container`, `text-on-surface-variant`, …).
+
+- Use the role utilities, not Tailwind's palette (`bg-white`, `text-emerald-600`, `dark:` …):
+  the roles already switch with the theme.
+- Framework7's CSS is not in a Tailwind layer and wins over utilities. Colour `f7-card`s
+  through `card-success` / `card-primary` / `card-error`, not `bg-*` classes, and avoid
+  Tailwind's `block` class, which collides with Framework7's `.block` component.
+- `--c-surface` is also the Android window background (`app_background` in
+  `src-tauri/gen/android/app/src/main/res/values*/colors.xml`); change both together.
+
 ## Requirements
 
 - Node.js (LTS recommended)

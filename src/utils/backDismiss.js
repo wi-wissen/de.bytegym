@@ -13,7 +13,21 @@
  * On Android this is what makes the system back button and the edge-swipe-back
  * gesture close a sheet (requires `handleBackNavigation = true` in MainActivity.kt);
  * on desktop it wires up the browser/mouse back button.
+ *
+ * Beyond modals there is one more back step: the root back handler. Android's
+ * navigation pattern is that back from any other top-level tab returns to the start
+ * tab, and only back from the start tab leaves the app. `setRootBackHandler(fn)`
+ * pushes a single history entry for that; a back navigation with no modal open pops
+ * it and calls `fn`. `setRootBackHandler(null)` (the user went home by hand) removes
+ * the entry again.
  */
+
+// The installed controller, so pages can reach it without threading it through.
+let current = null
+
+export function setRootBackHandler(handler) {
+  current?.setRootBackHandler(handler)
+}
 
 // Overlay types a back navigation should dismiss. Toasts and notifications
 // expire on their own and must never swallow a back press.
@@ -30,6 +44,10 @@ export function installBackDismiss(f7) {
   // Number of history entries we popped ourselves — the `popstate` events they
   // trigger are ours, not the user's, and get skipped.
   let selfPops = 0
+
+  // Root back step (see above). Non-null means its history entry is on the stack,
+  // underneath any modal entries.
+  let rootHandler = null
 
   f7.on('modalOpen', (modal) => {
     if (!DISMISSIBLE.includes(modal.type)) return
@@ -55,7 +73,13 @@ export function installBackDismiss(f7) {
     }
 
     const modal = stack[stack.length - 1]
-    if (!modal) return
+    if (!modal) {
+      // No modal left, so this was the root entry.
+      const handler = rootHandler
+      rootHandler = null
+      handler?.()
+      return
+    }
 
     // `close()` emits `modalClose` synchronously, so the flag is still set by the
     // time the handler above runs.
@@ -63,4 +87,23 @@ export function installBackDismiss(f7) {
     modal.close()
     closingViaBack = false
   })
+
+  current = {
+    setRootBackHandler(handler) {
+      if (handler) {
+        if (!rootHandler) history.pushState({ f7Root: true }, '')
+        rootHandler = handler
+        return
+      }
+      if (!rootHandler) return
+      rootHandler = null
+      // Only ours to pop while it is on top. Modals sit above it and block the UI
+      // that would call this, so in practice it always is.
+      if (stack.length === 0) {
+        selfPops += 1
+        history.back()
+      }
+    },
+  }
+  return current
 }

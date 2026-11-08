@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
-import { createI18n } from 'vue-i18n'
+
+// Icon font, bundled so icons render offline (was a Google Fonts request)
+import 'material-icons/iconfont/filled.css'
 
 // Tailwind CSS
 import './assets/main.css'
@@ -26,8 +28,8 @@ import 'framework7/components/pull-to-refresh/css'
 import 'framework7/components/typography/css'
 
 import App from './App.vue'
-import de from './i18n/de.json'
-import en from './i18n/en.json'
+import { i18n } from './i18n/index.js'
+import { installNativeInsets } from './utils/nativeInsets.js'
 
 import { sessionStore } from './store/session.js'
 import { feedStore } from './store/feed.js'
@@ -52,19 +54,8 @@ studioStore.load()
 // Initialize Framework7-Vue plugin (before `createApp`)
 Framework7.use(Framework7Vue)
 
-// Detect locale: OS language with English fallback
-const osLang = navigator.language?.split('-')[0] || 'en'
-const locale = ['de', 'en'].includes(osLang) ? osLang : 'en'
-
-// Composition mode. `globalInjection` keeps `$t` working in templates and
-// `this.$t` in Options API components, so no call sites had to change.
-export const i18n = createI18n({
-  legacy: false,
-  globalInjection: true,
-  locale,
-  fallbackLocale: 'en',
-  messages: { de, en }
-})
+// System-bar insets from the Android shell (edge-to-edge), before the first paint
+installNativeInsets()
 
 const app = createApp(App)
 

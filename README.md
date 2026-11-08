@@ -88,6 +88,12 @@ into `localStorage` and point it at a dead API — several assertions deliberate
 cover the failure path (for example, that a failed refresh still releases the
 pull-to-refresh spinner).
 
+No Edge (Linux, CI)? Point the suites at any Chromium instead:
+
+```sh
+CHROMIUM_PATH=/path/to/chromium npm test
+```
+
 | Suite | Covers |
 | --- | --- |
 | `back-dismiss.unit.mjs` | Back-to-dismiss state machine: nested sheets, rapid closes, toasts must not swallow a back press |
@@ -95,6 +101,7 @@ pull-to-refresh spinner).
 | `layout.e2e.cjs` | Tabbar height/centering, sheet drag handle, Framework7's own hairline survives |
 | `map.e2e.cjs` | maplibre-gl stays out of the startup path and still renders when lazily loaded |
 | `pull-to-refresh.e2e.cjs` | A real touch drag reaches the refresh handler, and `done()` runs even on error |
+| `sheets.e2e.cjs` | Bottom sheets close by dragging the header, by dragging content once it's scrolled to the top, by backdrop tap and close button; back from another tab returns to Home |
 | `styles-i18n.e2e.cjs` | Translations resolve; no Framework7 component lost its styles when the CSS bundle was trimmed |
 
 Release checks beyond the suites:

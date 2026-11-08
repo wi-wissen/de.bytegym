@@ -1,12 +1,5 @@
 <template>
-  <div class="flex flex-col overflow-y-auto h-full">
-    <!-- Header -->
-    <div class="flex items-center justify-between px-4 pt-1 pb-2 sticky top-0 bg-background z-10">
-      <h2 class="text-lg font-bold text-on-surface">{{ $t('strengthDetail.history') }}</h2>
-      <f7-link @click="$emit('close')" class="text-on-surface-variant text-xl leading-none">✕</f7-link>
-    </div>
-
-    <div class="px-4 pb-4">
+  <div>
       <!-- Title -->
       <h2 class="text-xl font-bold text-on-surface mb-1">{{ deviceName }}</h2>
       <p class="text-sm text-on-surface-variant mb-4">
@@ -51,19 +44,17 @@
           </div>
         </div>
       </template>
-    </div>
   </div>
 </template>
 
 <script>
+import { dateLocale } from '../i18n/index.js'
 import { strengthStore } from '../store/strength.js'
 import { loadStrengthHistory } from '../api/strength.js'
 import LineChart from '../components/charts/LineChart.vue'
 
 export default {
   name: 'StrengthDetail',
-
-  emits: ['close'],
 
   components: { LineChart },
 
@@ -173,7 +164,7 @@ export default {
 
     formatDate(iso) {
       if (!iso) return '–'
-      return new Date(iso).toLocaleDateString('de-DE', {
+      return new Date(iso).toLocaleDateString(dateLocale(), {
         day: '2-digit', month: '2-digit', year: 'numeric'
       })
     },

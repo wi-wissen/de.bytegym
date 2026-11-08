@@ -2,7 +2,7 @@
 // (popstate is dispatched ASYNCHRONOUSLY, like a real browser) and fake F7 modals
 // (close() emits `modalClose` synchronously, matching F7's modal-class.js).
 
-import { installBackDismiss } from '../src/utils/backDismiss.js'
+import { installBackDismiss, setRootBackHandler } from '../src/utils/backDismiss.js'
 
 const tick = () => new Promise((r) => setTimeout(r, 0))
 
@@ -140,6 +140,50 @@ const userBack = (env) => { global.history.back() } // same as a system back ges
   m2.close(); m1.close() // both closed before popstate flushes
   await tick(); await tick(); await tick()
   check('both entries removed, at base', env.depth() === 1, `depth=${env.depth()}`)
+}
+
+// --- G: root back step — back from another tab returns to Home, not out of the app
+{
+  console.log('G) back from another tab goes Home first')
+  const env = makeEnv(); installBackDismiss(env.f7)
+  let wentHome = 0
+  setRootBackHandler(() => { wentHome++ })
+  check('entry pushed on leaving Home', env.depth() === 2, `depth=${env.depth()}`)
+  setRootBackHandler(() => { wentHome++ }) // tab -> another tab
+  check('no second entry for tab -> tab', env.depth() === 2, `depth=${env.depth()}`)
+  userBack(env); await tick(); await tick()
+  check('handler ran once', wentHome === 1, `ran ${wentHome}x`)
+  check('app not exited', env.depth() === 1, `depth=${env.depth()}`)
+  userBack(env); await tick(); await tick()
+  check('second back exits from Home', env.depth() === 0 && wentHome === 1)
+}
+
+// --- H: going Home by hand removes the entry, so back then exits
+{
+  console.log('H) tapping Home by hand cleans up')
+  const env = makeEnv(); installBackDismiss(env.f7)
+  let ran = 0
+  setRootBackHandler(() => { ran++ })
+  setRootBackHandler(null)
+  await tick(); await tick()
+  check('entry removed', env.depth() === 1, `depth=${env.depth()}`)
+  check('handler did not run on self-pop', ran === 0)
+  userBack(env); await tick(); await tick()
+  check('back exits', env.depth() === 0 && ran === 0)
+}
+
+// --- I: a sheet open on another tab: back closes the sheet, then goes Home
+{
+  console.log('I) sheet over another tab')
+  const env = makeEnv(); installBackDismiss(env.f7)
+  let ran = 0
+  setRootBackHandler(() => { ran++ })
+  const s = env.makeModal('sheet'); s.show()
+  check('modal entry above root entry', env.depth() === 3, `depth=${env.depth()}`)
+  userBack(env); await tick(); await tick()
+  check('first back only closed the sheet', s.open === false && ran === 0)
+  userBack(env); await tick(); await tick()
+  check('second back went Home', ran === 1 && env.depth() === 1, `ran=${ran} depth=${env.depth()}`)
 }
 
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`)

@@ -1,6 +1,6 @@
 <template>
   <div class="p-4 pb-24 space-y-3">
-    <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm cursor-pointer active:opacity-90 transition-opacity m-0 mt-0!" @click="goStudio">
+    <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm ripple relative overflow-hidden m-0 mt-0!" @click="goStudio">
       <f7-card-content class="p-4">
         <div class="flex items-center justify-between gap-3">
           <div class="min-w-0 flex-1">
@@ -31,7 +31,7 @@
 
       <last-workout-card :workout-items="lastWorkoutItems" />
 
-      <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm cursor-pointer m-0 mb-0!" @click="showBioAgeSheet = true">
+      <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm ripple relative overflow-hidden m-0 mb-0!" @click="showBioAgeSheet = true">
         <f7-card-content class="p-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3 min-w-0">
@@ -92,22 +92,16 @@
       </div>
     </div>
 
-    <f7-sheet
+    <app-sheet
       :opened="showBioAgeSheet"
-      @sheet:closed="showBioAgeSheet = false"
-      swipe-to-close
-      :breakpoints="[1]"
-      :backdrop-breakpoint="0"
-      backdrop
-      style="--f7-sheet-height: 95vh; height: 95vh"
-      class="rounded-t-2xl sheet-surface"
+      :title="$t('progress.totalBioAge')"
+      @closed="showBioAgeSheet = false"
     >
       <bio-age-history-panel
         :opened="showBioAgeSheet"
         :chronological-age="chronologicalAge"
-        @close="showBioAgeSheet = false"
       />
-    </f7-sheet>
+    </app-sheet>
   </div>
 </template>
 
@@ -125,13 +119,14 @@ import { getStudioStatus, parseWorkingHours } from '../utils/time.js'
 import CurrentlyTrainingCard from '../components/cards/CurrentlyTrainingCard.vue'
 import LastWorkoutCard from '../components/cards/LastWorkoutCard.vue'
 import BioAgeHistoryPanel from '../components/bioage/BioAgeHistoryPanel.vue'
+import AppSheet from '../components/AppSheet.vue'
 
 export default {
   name: 'StartTab',
 
   emits: ['open-studio-tab'],
 
-  components: { CurrentlyTrainingCard, LastWorkoutCard, BioAgeHistoryPanel },
+  components: { CurrentlyTrainingCard, LastWorkoutCard, BioAgeHistoryPanel, AppSheet },
 
   data() {
     return {
@@ -248,7 +243,6 @@ export default {
           loadBioAge().catch(() => null)
         }
 
-        this.logLastWorkoutDebug()
       } catch (e) {
         console.error('[StartTab] loadData error:', e)
         const msg = e?.message || ''
@@ -281,83 +275,11 @@ export default {
         await this.loadLive()
         await updateFeed().catch(() => {})
         await loadBioAge().catch(() => null)
-        this.logLastWorkoutDebug()
       } finally {
         // Must run even if a request throws, or the pull-to-refresh spinner keeps
-        // spinning and MainPage's refresh button stays stuck on "refreshing".
+        // spinning (MainPage's refresh button drives that same spinner).
         done()
       }
-    },
-
-    logLastWorkoutDebug() {
-      const userId = sessionStore.userId
-      const allWorkouts = (feedStore.items || []).filter(item => {
-        const payload = item?.payload || {}
-        return item?.userId === userId && payload?.type === 'WORKOUT'
-      })
-
-      const egymWorkouts = allWorkouts.filter(item => {
-        const payload = item?.payload || {}
-        const exercises = Array.isArray(payload.exercises) ? payload.exercises : []
-        return exercises.some(ex => ex?.dataSource === 'EGYM_MACHINE')
-      })
-
-      const byDay = {}
-      for (const item of egymWorkouts) {
-        const payload = item?.payload || {}
-        const exercises = Array.isArray(payload.exercises) ? payload.exercises : []
-        const day = String(item?.createdAt || '').split('T')[0]
-        if (!day) continue
-
-        const exerciseCount = exercises.length
-        const devicesFromTotalPerDay = Number(item?.totalPerDay || 0)
-        const points = exercises.reduce((sum, ex) => sum + Number(ex?.points || 0), 0)
-        const calories = exercises.reduce((sum, ex) => sum + Number(ex?.calories || 0), 0)
-
-        if (!byDay[day]) {
-          byDay[day] = { day, itemCount: 0, exerciseCount: 0, devicesFromTotalPerDay: 0, points: 0, calories: 0 }
-        }
-        byDay[day].itemCount += 1
-        byDay[day].exerciseCount += exerciseCount
-        byDay[day].devicesFromTotalPerDay += devicesFromTotalPerDay
-        byDay[day].points += points
-        byDay[day].calories += calories
-      }
-
-      const perDayLatest7 = Object.values(byDay)
-        .sort((a, b) => String(b.day).localeCompare(String(a.day)))
-        .slice(0, 7)
-
-      console.log('[StartTab][LastWorkoutDebug] userId:', userId)
-      console.log('[StartTab][LastWorkoutDebug] workouts all:', allWorkouts.length)
-      console.log('[StartTab][LastWorkoutDebug] workouts egym:', egymWorkouts.length)
-      console.log('[StartTab][LastWorkoutDebug] per-day latest 7:', perDayLatest7)
-
-      const latestDay = perDayLatest7[0]?.day || null
-      const latestItems = latestDay
-        ? egymWorkouts.filter(item => String(item?.createdAt || '').startsWith(latestDay))
-        : []
-
-      const latestDayDetails = latestItems.map(item => {
-        const payload = item?.payload || {}
-        const exercises = Array.isArray(payload.exercises) ? payload.exercises : []
-        return {
-          id: item?.id,
-          createdAt: item?.createdAt,
-          totalPerDay: item?.totalPerDay,
-          feedTitle: item?.feedTitle,
-          exercises: exercises.map(ex => ({
-            id: ex?.id,
-            activityId: ex?.activityId,
-            dataSource: ex?.dataSource,
-            points: ex?.points,
-            calories: ex?.calories
-          }))
-        }
-      })
-
-      console.log('[StartTab][LastWorkoutDebug] latest day:', latestDay)
-      console.log('[StartTab][LastWorkoutDebug] latest day items:', latestDayDetails)
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <f7-card
-    class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm cursor-pointer active:scale-98 transition-transform m-0"
+    class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm ripple relative overflow-hidden m-0"
     @click="$emit('tap', metric)"
   >
     <f7-card-content class="py-3 px-4">

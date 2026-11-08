@@ -130,6 +130,8 @@
   "noData": "Noch keine Daten vorhanden",
   "error": "Fehler beim Laden",
   "retry": "Erneut versuchen",
+  "refresh": "Aktualisieren",
+  "close": "Schließen",
   "errorDialog": {
     "title": "Unerwarteter Fehler",
     "sendHint": "Etwas ist schiefgelaufen. Bitte kopiere die Details und sende sie an den Entwickler.",

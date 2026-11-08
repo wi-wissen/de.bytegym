@@ -1,11 +1,5 @@
 <template>
-  <div class="flex flex-col h-full overflow-y-auto">
-    <div class="flex items-center justify-between px-4 pt-1 pb-2 sticky top-0 bg-background z-10">
-      <h3 class="font-bold text-on-surface">{{ $t('progress.totalBioAge') }}</h3>
-      <f7-link @click="$emit('close')" class="text-on-surface-variant text-xl">✕</f7-link>
-    </div>
-
-    <div class="px-4 pb-6">
+  <div>
       <div class="bg-surface rounded-2xl p-3 shadow-sm">
         <p class="text-xs text-on-surface-variant mb-2">
           {{ $t('strengthDetail.history') }}
@@ -38,11 +32,11 @@
           <span class="text-sm font-semibold text-on-surface">{{ entry.value }} {{ $t('units.years') }}</span>
         </div>
       </div>
-    </div>
   </div>
 </template>
 
 <script>
+import { dateLocale } from '../../i18n/index.js'
 import { loadBioAge, loadBioAgeHistory } from '../../api/strength.js'
 import { strengthStore } from '../../store/strength.js'
 import LineChart from '../charts/LineChart.vue'
@@ -51,8 +45,6 @@ export default {
   name: 'BioAgeHistoryPanel',
 
   components: { LineChart },
-
-  emits: ['close'],
 
   props: {
     opened: { type: Boolean, default: false },
@@ -97,7 +89,7 @@ export default {
   methods: {
     formatDate(iso) {
       if (!iso) return '–'
-      return new Date(iso).toLocaleDateString('de-DE', {
+      return new Date(iso).toLocaleDateString(dateLocale(), {
         day: '2-digit', month: '2-digit', year: 'numeric'
       })
     },

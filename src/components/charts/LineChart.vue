@@ -93,6 +93,7 @@
 </template>
 
 <script>
+import { dateLocale } from '../../i18n/index.js'
 export default {
   name: 'LineChart',
 
@@ -193,7 +194,7 @@ export default {
         .filter((_, i) => i % step === 0 || i === this.points.length - 1)
         .map(p => ({
           x: p.x,
-          label: new Date(p.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+          label: new Date(p.date).toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit' })
         }))
     }
   }

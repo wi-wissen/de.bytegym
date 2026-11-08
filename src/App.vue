@@ -61,19 +61,16 @@ export default {
   --f7-theme-color-rgb: 245, 158, 11;
   --f7-theme-color-shade: #D97706;
   --f7-theme-color-tint: #FCD34D;
-  --f7-page-bg-color: #f8f8f7;
+  --f7-page-bg-color: var(--app-bg);
   --f7-card-bg-color: #ffffff;
-  --f7-bars-bg-color: #f8f8f7;
+  --f7-bars-bg-color: var(--app-bg);
   --f7-tabbar-link-active-color: #D97706;
-  font-family: 'Roboto', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --f7-page-bg-color: #1a1a1a;
     --f7-card-bg-color: #262626;
-    --f7-bars-bg-color: #1a1a1a;
   }
 }
 

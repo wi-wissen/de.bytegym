@@ -14,7 +14,7 @@ const dump = (page) => page.evaluate(() => {
 })
 
 ;(async () => {
-  const browser = await chromium.launch({ channel: 'msedge', headless: true })
+  const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH, headless: true } : { channel: 'msedge', headless: true })
 
   console.log('\nA LOGIN WITHOUT "STAY SIGNED IN" WRITES NO PASSWORD')
   {

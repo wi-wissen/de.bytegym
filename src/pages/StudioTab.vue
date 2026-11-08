@@ -80,48 +80,35 @@
     </div>
 
     <!-- Hour drilldown sheet -->
-    <f7-sheet
-      ref="studioSheet"
+    <app-sheet
       :opened="!!drilldownWeek"
-      @sheet:closed="drilldownWeek = null"
-      @sheet:opened="onStudioSheetOpened"
-      swipe-to-close
-      :breakpoints="[1]"
-      :backdrop-breakpoint="0"
-      backdrop
-      style="--f7-sheet-height: 95vh; height: 95vh"
-      class="h-[95vh] rounded-t-2xl sheet-surface"
+      :title="$t('studio.weeklyHeatmap')"
+      @closed="drilldownWeek = null"
     >
-      <div class="flex flex-col h-full overflow-y-auto">
-        <div class="flex items-center justify-between px-4 pt-1 pb-2 sticky top-0 bg-background z-10">
-          <p class="text-sm font-semibold text-on-surface">{{ $t('studio.weeklyHeatmap') }}</p>
-          <f7-link class="text-on-surface-variant text-xl" @click="drilldownWeek = null">✕</f7-link>
-        </div>
-        <div class="px-4 pb-4">
-          <hour-drilldown
-            v-if="drilldownWeek"
-            :feed-items="egymItems"
-            :week-start="drilldownWeek"
-            :working-hours="workingHours"
-          />
-        </div>
-      </div>
-    </f7-sheet>
+      <hour-drilldown
+        v-if="drilldownWeek"
+        :feed-items="egymItems"
+        :week-start="drilldownWeek"
+        :working-hours="workingHours"
+      />
+    </app-sheet>
   </div>
 </template>
 
 <script>
+import { dateLocale } from '../i18n/index.js'
 import { studioStore } from '../store/studio.js'
 import { feedStore } from '../store/feed.js'
 import { loadStudioInfo } from '../api/studio.js'
 import { getStudioStatus, formatHoursDE } from '../utils/time.js'
 import WeekHeatmap from '../components/heatmap/WeekHeatmap.vue'
 import HourDrilldown from '../components/heatmap/HourDrilldown.vue'
+import AppSheet from '../components/AppSheet.vue'
 
 export default {
   name: 'StudioTab',
 
-  components: { WeekHeatmap, HourDrilldown },
+  components: { WeekHeatmap, HourDrilldown, AppSheet },
 
   data() {
     return {
@@ -205,7 +192,7 @@ export default {
     formatHoursDE,
 
     formatTime(iso) {
-      return new Date(iso).toLocaleString('de-DE', {
+      return new Date(iso).toLocaleString(dateLocale(), {
         weekday: 'short',
         day: '2-digit',
         month: '2-digit',
@@ -310,9 +297,6 @@ export default {
       this.drilldownWeek = week.weekStart
     },
 
-    onStudioSheetOpened(sheet) {
-      sheet?.setBreakpoint?.(1)
-    },
 
     async onRefresh(done) {
       try {

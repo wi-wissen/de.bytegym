@@ -10,7 +10,7 @@ const check = (name, cond, extra = '') => {
 }
 
 ;(async () => {
-  const browser = await chromium.launch({ channel: 'msedge', headless: true })
+  const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH, headless: true } : { channel: 'msedge', headless: true })
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
 
   // Seed a session + a studio with coordinates so StudioTab.initMap() actually runs

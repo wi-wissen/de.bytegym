@@ -1,14 +1,17 @@
 <template>
-  <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm m-0">
+  <f7-card class="m-0">
     <f7-card-content class="p-4">
-      <span v-if="!firstItem" class="block text-sm text-on-surface-variant italic">
+      <div v-if="!firstItem" class="flex items-center gap-3 text-sm text-on-surface-variant">
+        <div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+          <f7-icon material="calendar_month" size="20px" />
+        </div>
         {{ $t('home.noWorkoutYet') }}
-      </span>
+      </div>
 
       <div v-else>
         <div class="flex items-center gap-3 mb-3">
-          <div class="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
-            <f7-icon material="calendar_month" size="17px" class="text-amber-600" />
+          <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+            <f7-icon material="calendar_month" size="20px" class="text-on-primary-container" />
           </div>
           <div>
             <h3 class="font-semibold text-on-surface text-sm">{{ $t('home.lastWorkoutCard') }}</h3>
@@ -19,15 +22,15 @@
           </div>
         </div>
 
-        <div class="flex justify-around pt-3 border-t border-neutral-200 dark:border-neutral-700">
+        <div class="flex justify-around pt-3 border-t border-outline-variant">
           <div class="text-center">
-            <span class="block text-xl font-bold text-on-surface leading-none">{{ exerciseCount }}</span>
-            <span class="block text-xs text-on-surface-variant mt-1">{{ $t('home.exercises') }}</span>
+            <div class="text-xl font-semibold tabular-nums text-on-surface leading-none">{{ exerciseCount }}</div>
+            <div class="text-xs text-on-surface-variant mt-1">{{ $t('home.exercises') }}</div>
           </div>
-          <div class="w-px bg-neutral-200 dark:bg-neutral-700" />
+          <div class="w-px bg-outline-variant" />
           <div class="text-center">
-            <span class="block text-xl font-bold text-on-surface leading-none">{{ totalPoints }}</span>
-            <span class="block text-xs text-on-surface-variant mt-1">{{ $t('home.points') }}</span>
+            <div class="text-xl font-semibold tabular-nums text-on-surface leading-none">{{ totalPoints }}</div>
+            <div class="text-xs text-on-surface-variant mt-1">{{ $t('home.points') }}</div>
           </div>
         </div>
       </div>

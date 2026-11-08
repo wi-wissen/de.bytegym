@@ -1,7 +1,7 @@
 <template>
-  <f7-page :page-content="false" class="bg-background">
+  <f7-page :page-content="false" class="bg-surface-container">
     <!-- Dynamic navbar -->
-    <f7-navbar class="border-b border-neutral-200/80 dark:border-neutral-700/70">
+    <f7-navbar>
       <template #title>{{ navTitle }}</template>
       <template v-if="navSubtitle" #subtitle>
         <span class="text-sm opacity-70">{{ navSubtitle }}</span>
@@ -28,7 +28,7 @@
     <!-- Tab bar -->
     <!-- `icons` (not `labels`) is what gives F7 the icon+label tabbar: it sets the
          Material 3 nav-bar height and keeps the page-content bottom offset in sync -->
-    <f7-toolbar tabbar icons bottom class="border-t border-neutral-200/90 dark:border-neutral-700/70">
+    <f7-toolbar tabbar icons bottom>
       <f7-toolbar-pane>
         <f7-link tab-link="#tab-home" tab-link-active>
           <f7-icon material="home" size="24px" />

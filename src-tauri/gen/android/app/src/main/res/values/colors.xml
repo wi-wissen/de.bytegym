@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Keep in sync with --app-bg / theme colour in src/assets/main.css -->
-    <color name="app_background">#FFFAFAFA</color>
+    <!-- Keep in sync with --c-surface / theme colour in src/assets/main.css -->
+    <color name="app_background">#FFFCF8F4</color>
     <color name="app_primary">#FFF59E0B</color>
 </resources>

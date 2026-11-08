@@ -1,7 +1,7 @@
 <template>
   <div>
       <!-- Title -->
-      <h2 class="text-xl font-bold text-on-surface mb-1">{{ deviceName }}</h2>
+      <h2 class="text-xl font-semibold tabular-nums text-on-surface mb-1">{{ deviceName }}</h2>
       <p class="text-sm text-on-surface-variant mb-4">
         {{ $t('progress.score') }}: <strong>{{ currentScore }} kg</strong>
         <span v-if="metric.progress" :class="trendClass" class="ml-2 text-xs">
@@ -21,13 +21,13 @@
 
       <template v-else>
         <!-- Line chart -->
-        <div class="bg-surface rounded-2xl p-3 shadow-sm mb-4">
+        <div class="bg-surface-container rounded-2xl p-3 shadow-sm mb-4">
           <p class="text-xs text-on-surface-variant mb-2">{{ $t('strengthDetail.history') }}</p>
           <line-chart :data="chartData" :svg-width="320" :svg-height="150" :force-zero="true" />
         </div>
 
         <!-- Measurements table -->
-        <div class="bg-surface rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-surface-container rounded-2xl shadow-sm overflow-hidden">
           <p class="text-xs text-on-surface-variant px-4 pt-3 pb-1 font-semibold">
             {{ $t('strengthDetail.measurements') }}
           </p>
@@ -114,8 +114,8 @@ export default {
 
     trendClass() {
       const p = this.metric?.progress
-      if (p === 'up' || p === 'INCREASED') return 'text-green-600 dark:text-green-400'
-      if (p === 'down' || p === 'DECREASED') return 'text-red-600 dark:text-red-400'
+      if (p === 'up' || p === 'INCREASED') return 'text-success'
+      if (p === 'down' || p === 'DECREASED') return 'text-error'
       return 'text-on-surface-variant'
     },
 
@@ -178,8 +178,8 @@ export default {
 
     entryTrendClass(entry) {
       const p = entry.progress || entry.strength?.progress
-      if (p === 'up' || p === 'INCREASED') return 'text-green-600'
-      if (p === 'down' || p === 'DECREASED') return 'text-red-600'
+      if (p === 'up' || p === 'INCREASED') return 'text-success'
+      if (p === 'down' || p === 'DECREASED') return 'text-error'
       return 'text-on-surface-variant'
     }
   }

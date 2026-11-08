@@ -110,6 +110,7 @@
     }
   },
   "leaderboard": {
+    "you": "Du",
     "title": "Bestenliste",
     "trainingDays": "Trainingstage",
     "yourRank": "Dein Rang",

@@ -1,5 +1,5 @@
 <template>
-  <f7-card :class="cardClass" class="rounded-2xl shadow-sm m-0">
+  <f7-card :class="cardClass" class="m-0">
     <f7-card-content class="p-4">
       <div v-if="loading" class="flex flex-col gap-2">
         <div class="skeleton-block h-6 rounded-lg w-3/4" />
@@ -9,7 +9,7 @@
       <div v-else>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center" :class="iconBoxClass">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="iconBoxClass">
               <f7-icon material="groups" size="20px" :class="iconClass" />
             </div>
             <div>
@@ -20,9 +20,9 @@
               </div>
             </div>
           </div>
-          <div class="text-3xl font-bold" :class="countClass">{{ countNumber }}</div>
+          <div class="text-4xl font-semibold tabular-nums" :class="countClass">{{ countNumber }}</div>
         </div>
-        <div class="mt-2 flex items-center gap-1.5 text-xs text-on-surface-variant">
+        <div class="mt-2 flex items-center gap-1.5 text-xs opacity-70">
           <f7-icon material="schedule" size="13px" />
           <span>{{ $t('freshness', { time: freshTime }) }}</span>
         </div>
@@ -51,32 +51,32 @@ export default {
 
     cardClass() {
       return this.studioOpen
-        ? 'bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800'
-        : 'bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700'
+        ? 'card-success'
+        : ''
     },
 
     iconBoxClass() {
-      return this.studioOpen ? 'bg-emerald-100' : 'bg-neutral-100 dark:bg-neutral-700'
+      return this.studioOpen ? 'bg-success' : 'bg-surface-container-highest'
     },
 
     iconClass() {
-      return this.studioOpen ? 'text-emerald-600' : 'text-neutral-500'
+      return this.studioOpen ? 'text-success-container' : 'text-on-surface-variant'
     },
 
     titleClass() {
-      return this.studioOpen ? 'text-emerald-900 dark:text-emerald-300' : 'text-on-surface'
+      return this.studioOpen ? '' : 'text-on-surface'
     },
 
     dotClass() {
-      return this.studioOpen ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-400'
+      return this.studioOpen ? 'bg-success animate-pulse' : 'bg-outline'
     },
 
     statusClass() {
-      return this.studioOpen ? 'text-emerald-700 dark:text-emerald-400' : 'text-on-surface-variant'
+      return this.studioOpen ? 'opacity-80' : 'text-on-surface-variant'
     },
 
     countClass() {
-      return this.studioOpen ? 'text-emerald-600' : 'text-neutral-500'
+      return this.studioOpen ? '' : 'text-on-surface-variant'
     },
 
     countNumber() {

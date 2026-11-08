@@ -110,6 +110,7 @@
     }
   },
   "leaderboard": {
+    "you": "You",
     "title": "Leaderboard",
     "trainingDays": "Training days",
     "yourRank": "Your rank",

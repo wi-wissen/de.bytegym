@@ -3,31 +3,148 @@
    into src-tauri/target (8 GB of Rust artifacts) and the build runs out of memory. */
 @import "tailwindcss" source("../");
 
-/* ── App background ──────────────────────────────────────────────────────────
-   One token for page, bars and window. With edge-to-edge the status bar is
-   transparent, so the navbar colour runs up behind it — page and bars must match.
-   Keep in sync with `app_background` in the Android colors.xml (values, values-night). */
+/* ── Design tokens ────────────────────────────────────────────────────────────
+   Material 3 colour roles for an amber brand. Framework7's automatic palette turns
+   amber into brown and puts white text on it (2:1 contrast), so the roles are set
+   by hand. Everything reads from these: Framework7 (mapped below), Tailwind
+   (`bg-surface-container`, `text-on-surface-variant`… via @theme), the charts.
+
+   Only Material roles live here, not "md-*" names: if the app ever ships with
+   Framework7's iOS theme, the same roles can be mapped onto its variables.
+
+   `--c-surface` is also the Android window background — keep it in sync with
+   `app_background` in the Android colors.xml (values, values-night). */
 :root {
-  --app-bg: #fafafa;
-  --app-fg: #171717;
+  --c-brand: #f59e0b;              /* filled buttons, highlights */
+  --c-on-brand: #2b1700;
+
+  --c-primary: #8b5000;            /* text, icons, active state */
+  --c-on-primary: #ffffff;
+  --c-primary-container: #ffdcbd;
+  --c-on-primary-container: #2c1600;
+  --c-secondary-container: #f8dfc7;  /* nav indicator, tonal chips */
+  --c-on-secondary-container: #2a1906;
+
+  --c-surface: #fcf8f4;
+  --c-surface-container-lowest: #ffffff;
+  --c-surface-container-low: #f7f1ec;
+  --c-surface-container: #f1ebe5;
+  --c-surface-container-high: #ebe5df;
+  --c-surface-container-highest: #e5dfd9;
+  --c-on-surface: #1f1b16;
+  --c-on-surface-variant: #51453a;
+  --c-outline: #837568;
+  --c-outline-variant: #d5c4b5;
+
+  --c-success: #1b6d32;
+  --c-success-container: #c4efc8;
+  --c-on-success-container: #00210a;
+  --c-error: #ba1a1a;
+  --c-error-container: #ffdad6;
+  --c-on-error-container: #410002;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --app-bg: #171717;
-    --app-fg: #f5f5f5;
+    --c-brand: #f5a524;
+    --c-on-brand: #2b1700;
+
+    --c-primary: #ffb870;
+    --c-on-primary: #4a2800;
+    --c-primary-container: #693c00;
+    --c-on-primary-container: #ffdcbd;
+    --c-secondary-container: #59432e;
+    --c-on-secondary-container: #f8dfc7;
+
+    --c-surface: #17130f;
+    --c-surface-container-lowest: #110e0a;
+    --c-surface-container-low: #1f1b17;
+    --c-surface-container: #241f1b;
+    --c-surface-container-high: #2e2925;
+    --c-surface-container-highest: #39342f;
+    --c-on-surface: #ece0d6;
+    --c-on-surface-variant: #d5c4b5;
+    --c-outline: #9e8e81;
+    --c-outline-variant: #51453a;
+
+    --c-success: #8ad897;
+    --c-success-container: #005321;
+    --c-on-success-container: #a6f5b1;
+    --c-error: #ffb4ab;
+    --c-error-container: #93000a;
+    --c-on-error-container: #ffdad6;
   }
 }
 
-/* `:root:root` outranks Framework7's own `:root` rules, which load after this file. */
+/* Tailwind utilities for the roles: bg-surface-container, text-on-surface, … */
+@theme inline {
+  --color-brand: var(--c-brand);
+  --color-on-brand: var(--c-on-brand);
+  --color-primary: var(--c-primary);
+  --color-on-primary: var(--c-on-primary);
+  --color-primary-container: var(--c-primary-container);
+  --color-on-primary-container: var(--c-on-primary-container);
+  --color-secondary-container: var(--c-secondary-container);
+  --color-on-secondary-container: var(--c-on-secondary-container);
+  --color-surface: var(--c-surface);
+  --color-surface-container-lowest: var(--c-surface-container-lowest);
+  --color-surface-container-low: var(--c-surface-container-low);
+  --color-surface-container: var(--c-surface-container);
+  --color-surface-container-high: var(--c-surface-container-high);
+  --color-surface-container-highest: var(--c-surface-container-highest);
+  --color-on-surface: var(--c-on-surface);
+  --color-on-surface-variant: var(--c-on-surface-variant);
+  --color-outline: var(--c-outline);
+  --color-outline-variant: var(--c-outline-variant);
+  --color-success: var(--c-success);
+  --color-success-container: var(--c-success-container);
+  --color-on-success-container: var(--c-on-success-container);
+  --color-error: var(--c-error);
+  --color-error-container: var(--c-error-container);
+  --color-on-error-container: var(--c-on-error-container);
+}
+
+/* `:root:root` outranks Framework7's own `:root`, `.md` and `.dark` rules, which
+   load after this file and are generated from the primary colour at runtime. */
 :root:root {
   /* The device's UI font (Roboto, Google Sans, One UI Sans…) instead of a web font. */
   --f7-font-family: system-ui, -apple-system, 'Roboto', 'Segoe UI', sans-serif;
 
-  /* Framework7 derives a tinted Material surface from the amber primary (pinkish in
-     light, brown in dark) and uses it for the login screen, floating-label
-     backgrounds and more. Pin it to the app background so every screen matches. */
-  --f7-md-surface: var(--app-bg);
+  /* Framework7's Material theme, mapped onto the roles above. */
+  --f7-theme-color: var(--c-primary);
+  --f7-md-primary: var(--c-primary);
+  --f7-md-on-primary: var(--c-on-primary);
+  --f7-md-primary-container: var(--c-primary-container);
+  --f7-md-on-primary-container: var(--c-on-primary-container);
+  --f7-md-secondary-container: var(--c-secondary-container);
+  --f7-md-on-secondary-container: var(--c-on-secondary-container);
+  --f7-md-surface: var(--c-surface);
+  --f7-md-surface-1: var(--c-surface-container-low);
+  --f7-md-surface-2: var(--c-surface-container);
+  --f7-md-surface-3: var(--c-surface-container-high);
+  --f7-md-surface-variant: var(--c-surface-container-highest);
+  --f7-md-on-surface: var(--c-on-surface);
+  --f7-md-on-surface-variant: var(--c-on-surface-variant);
+  --f7-md-outline: var(--c-outline);
+  --f7-md-outline-variant: var(--c-outline-variant);
+
+  /* Top app bar sits on the page colour; the navigation bar is one tone up. */
+  --f7-navbar-bg-color: var(--c-surface);
+  --f7-toolbar-bg-color: var(--c-surface-container);
+  --f7-page-bg-color: var(--c-surface);
+
+  /* Filled buttons carry the brand colour, with dark text for contrast. */
+  --f7-button-fill-bg-color: var(--c-brand);
+  --f7-button-fill-text-color: var(--c-on-brand);
+
+  /* Filled cards (Material 3): a tonal container, no border, no shadow. */
+  --f7-card-bg-color: var(--c-surface-container-low);
+  --f7-card-border-radius: 16px;
+  --f7-card-box-shadow: none;
+  --f7-card-header-font-size: 16px;
+
+  /* Bottom sheets sit one tone above the page. */
+  --f7-sheet-bg-color: var(--c-surface-container-low);
 
   /* Edge-to-edge insets: whatever is larger of the WebView's own env() and what the
      Android shell reports (src/utils/nativeInsets.js). Framework7 pads the navbar,
@@ -43,8 +160,34 @@ body,
 .view,
 .page,
 .page-content {
-  background: var(--app-bg);
-  color: var(--app-fg);
+  background: var(--c-surface);
+  color: var(--c-on-surface);
+}
+
+/* Top app bar: no divider — Material separates by tone, not lines. */
+.navbar .navbar-bg::after,
+.toolbar::before,
+.tabbar::before {
+  display: none;
+}
+
+.card {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Tonal card variants for status: the whole card speaks one colour role. */
+.card.card-success {
+  --f7-card-bg-color: var(--c-success-container);
+  color: var(--c-on-success-container);
+}
+.card.card-primary {
+  --f7-card-bg-color: var(--c-primary-container);
+  color: var(--c-on-primary-container);
+}
+.card.card-error {
+  --f7-card-bg-color: var(--c-error-container);
+  color: var(--c-on-error-container);
 }
 
 /* ── Feel like an app, not a web page ──────────────────────────────────────── */
@@ -81,8 +224,14 @@ img {
 }
 
 .sheet-modal.sheet-surface,
-.sheet-modal.sheet-surface .sheet-modal-inner {
-  background: var(--app-bg) !important;
+.sheet-modal.sheet-surface .sheet-modal-inner,
+.sheet-modal.sheet-surface .page-content {
+  background: var(--c-surface-container-low) !important;
+}
+
+/* Inside a sheet, cards and panels step up one more tone. */
+.sheet-modal.sheet-surface .card {
+  --f7-card-bg-color: var(--c-surface-container);
 }
 
 /* Drag handle — the affordance for the swipe-to-close these sheets already have.

@@ -1,6 +1,6 @@
 <template>
   <f7-card
-    class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm ripple relative overflow-hidden m-0"
+    class="bg-surface-container-low rounded-2xl ripple relative overflow-hidden m-0"
     @click="$emit('tap', metric)"
   >
     <f7-card-content class="py-3 px-4">
@@ -8,7 +8,7 @@
         <div>
           <h3 class="font-medium text-on-surface text-sm">{{ deviceName }}</h3>
           <div class="flex items-baseline gap-1 mt-1">
-            <span class="text-2xl font-bold text-on-surface">{{ score }}</span>
+            <span class="text-2xl font-semibold tabular-nums text-on-surface">{{ score }}</span>
             <span class="text-sm text-on-surface-variant">kg {{ $t('progress.score') }}</span>
           </div>
         </div>
@@ -81,8 +81,8 @@ export default {
 
     trendColorClass() {
       const progress = this.metric?.progress
-      if (progress === 'up' || progress === 'INCREASED') return 'text-emerald-600'
-      if (progress === 'down' || progress === 'DECREASED') return 'text-red-500'
+      if (progress === 'up' || progress === 'INCREASED') return 'text-success'
+      if (progress === 'down' || progress === 'DECREASED') return 'text-error'
       return 'text-on-surface-variant'
     },
 

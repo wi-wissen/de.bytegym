@@ -1,6 +1,6 @@
 <template>
   <div>
-      <div class="bg-surface rounded-2xl p-3 shadow-sm">
+      <div class="bg-surface-container rounded-2xl p-3 shadow-sm">
         <p class="text-xs text-on-surface-variant mb-2">
           {{ $t('strengthDetail.history') }}
         </p>
@@ -19,7 +19,7 @@
         </p>
       </div>
 
-      <div class="bg-surface rounded-2xl shadow-sm overflow-hidden mt-3">
+      <div class="bg-surface-container rounded-2xl shadow-sm overflow-hidden mt-3">
         <p class="text-xs text-on-surface-variant px-4 pt-3 pb-1 font-semibold">
           {{ $t('strengthDetail.measurements') }}
         </p>

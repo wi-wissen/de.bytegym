@@ -1,7 +1,7 @@
 <template>
   <div class="px-4 pt-4 pb-24 space-y-4">
     <!-- Map banner -->
-    <div id="map-container" class="w-full h-40 rounded-2xl bg-surface-variant relative overflow-hidden" @click="openOsm">
+    <div id="map-container" class="w-full h-40 rounded-2xl bg-surface-container-high relative overflow-hidden" @click="openOsm">
       <div v-if="!mapReady" class="absolute inset-0 flex items-center justify-center text-on-surface-variant text-sm">
         <f7-icon material="location_on" size="16px" class="mr-1" /> {{ $t('studio.map') }}
       </div>
@@ -14,12 +14,12 @@
     </p>
 
     <!-- Studio info -->
-    <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm m-0">
+    <f7-card class="m-0">
       <f7-card-header class="flex-wrap gap-1 items-start">
-            <span class="font-bold text-on-surface text-base wrap-break-word min-w-0">{{ studioName }}</span>
-            <f7-badge :class="statusBadgeClass" class="text-xs shrink-0 whitespace-nowrap rounded-full px-2 py-1">{{ statusLabel }}</f7-badge>
+            <span class="font-semibold text-on-surface text-base wrap-break-word min-w-0">{{ studioName }}</span>
+            <span :class="statusBadgeClass" class="text-xs font-medium shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1">{{ statusLabel }}</span>
       </f7-card-header>
-      <f7-card-content class="space-y-2 pt-2 border-t border-neutral-200 dark:border-neutral-700">
+      <f7-card-content class="space-y-3 pt-0">
         <div v-if="address" class="flex items-center justify-between text-sm">
           <div class="flex items-center gap-2 min-w-0">
             <f7-icon material="location_on" size="16px" class="text-on-surface-variant" />
@@ -28,20 +28,20 @@
           <f7-link icon-material="content_copy" @click="copyAddress" class="text-on-surface-variant" />
         </div>
 
-        <a v-if="phone" :href="'tel:' + phone" class="text-sm text-amber-600 flex items-center gap-2">
+        <a v-if="phone" :href="'tel:' + phone" class="text-sm text-primary flex items-center gap-2">
           <f7-icon material="call" size="16px" /> {{ phone }}
         </a>
-        <a v-if="email" :href="'mailto:' + email" class="text-sm text-amber-600 flex items-center gap-2">
+        <a v-if="email" :href="'mailto:' + email" class="text-sm text-primary flex items-center gap-2">
           <f7-icon material="mail" size="16px" /> {{ email }}
         </a>
-        <a v-if="website" :href="website" external class="text-sm text-amber-600 flex items-center gap-2 truncate">
+        <a v-if="website" :href="website" external class="text-sm text-primary flex items-center gap-2 truncate">
           <f7-icon material="language" size="16px" /> {{ website }}
         </a>
       </f7-card-content>
     </f7-card>
 
     <!-- Opening hours -->
-    <f7-card v-if="hasHours" class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm m-0">
+    <f7-card v-if="hasHours" class="bg-surface-container-low rounded-2xl m-0">
       <f7-card-header class="font-semibold text-on-surface">{{ $t('studio.hours') }}</f7-card-header>
       <f7-card-content class="pt-0!">
           <div
@@ -56,7 +56,7 @@
     </f7-card>
 
     <!-- Weekly heat map -->
-    <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm m-0">
+    <f7-card class="m-0">
       <f7-card-header class="font-semibold text-on-surface">
         {{ $t('studio.weeklyHeatmap') }}
       </f7-card-header>
@@ -75,9 +75,7 @@
       </f7-card-content>
     </f7-card>
 
-    <div v-if="errorMsg" class="text-sm text-error bg-error-container rounded-xl px-4 py-2">
-      {{ errorMsg }}
-    </div>
+    <error-banner v-if="errorMsg" :message="errorMsg" />
 
     <!-- Hour drilldown sheet -->
     <app-sheet
@@ -104,11 +102,12 @@ import { getStudioStatus, formatHoursDE } from '../utils/time.js'
 import WeekHeatmap from '../components/heatmap/WeekHeatmap.vue'
 import HourDrilldown from '../components/heatmap/HourDrilldown.vue'
 import AppSheet from '../components/AppSheet.vue'
+import ErrorBanner from '../components/ErrorBanner.vue'
 
 export default {
   name: 'StudioTab',
 
-  components: { WeekHeatmap, HourDrilldown, AppSheet },
+  components: { WeekHeatmap, HourDrilldown, AppSheet, ErrorBanner },
 
   data() {
     return {
@@ -165,9 +164,9 @@ export default {
 
     statusBadgeClass() {
       const s = this.studioStatus.status
-      if (s === 'open') return 'bg-green-500 text-white'
-      if (s === 'opening_soon') return 'bg-orange-400 text-white'
-      return 'bg-red-500 text-white'
+      if (s === 'open') return 'bg-success-container text-on-success-container'
+      if (s === 'opening_soon') return 'bg-primary-container text-on-primary-container'
+      return 'bg-error-container text-on-error-container'
     }
   },
 

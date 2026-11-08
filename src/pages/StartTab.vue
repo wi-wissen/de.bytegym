@@ -1,13 +1,13 @@
 <template>
   <div class="p-4 pb-24 space-y-3">
-    <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm ripple relative overflow-hidden m-0 mt-0!" @click="goStudio">
+    <f7-card class="ripple relative overflow-hidden m-0 mt-0!" @click="goStudio">
       <f7-card-content class="p-4">
         <div class="flex items-center justify-between gap-3">
           <div class="min-w-0 flex-1">
             <h2 class="font-semibold text-on-surface truncate">{{ studioName }}</h2>
             <div class="flex items-center gap-2 mt-1">
-              <div class="flex items-center gap-1.5" :class="studioOpen ? 'text-emerald-600' : 'text-red-500'">
-                <span class="w-2 h-2 rounded-full" :class="studioOpen ? 'bg-emerald-500' : 'bg-red-500'" />
+              <div class="flex items-center gap-1.5" :class="studioOpen ? 'text-success' : 'text-error'">
+                <span class="w-2 h-2 rounded-full" :class="studioOpen ? 'bg-success' : 'bg-error'" />
                 <span class="text-sm font-medium">{{ studioStatusLabel }}</span>
               </div>
               <span v-if="studioMetaLabel" class="text-xs text-on-surface-variant">{{ studioMetaLabel }}</span>
@@ -31,19 +31,19 @@
 
       <last-workout-card :workout-items="lastWorkoutItems" />
 
-      <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm ripple relative overflow-hidden m-0 mb-0!" @click="showBioAgeSheet = true">
+      <f7-card class="ripple relative overflow-hidden m-0 mb-0!" @click="showBioAgeSheet = true">
         <f7-card-content class="p-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
-                <f7-icon material="favorite" size="18px" class="text-amber-600" />
+              <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+                <f7-icon material="favorite" size="20px" class="text-on-primary-container" />
               </div>
               <div>
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium text-on-surface-variant">{{ $t('home.bioAgeLabel') }}</span>
                 </div>
                 <div class="flex items-baseline gap-1">
-                  <span class="text-2xl font-bold text-on-surface">{{ totalBioAge ?? '–' }}</span>
+                  <span class="text-2xl font-semibold tabular-nums text-on-surface">{{ totalBioAge ?? '–' }}</span>
                   <span v-if="totalBioAge != null" class="text-sm text-on-surface-variant">{{ $t('units.years') }}</span>
                 </div>
               </div>
@@ -59,37 +59,34 @@
       </f7-card>
 
       <div class="grid grid-cols-2 gap-2">
-        <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm m-0">
+        <f7-card class="m-0">
           <f7-card-content class="p-4">
             <div class="flex items-center gap-2 mb-2">
-              <f7-icon material="trending_up" size="16px" class="text-amber-600" />
+              <f7-icon material="trending_up" size="16px" class="text-primary" />
               <span class="text-sm font-medium text-on-surface-variant">{{ $t('leaderboard.trainingDays') }}</span>
             </div>
             <div class="flex items-baseline gap-2">
-              <span class="text-2xl font-bold text-on-surface">{{ trainingDaysLast4 }}</span>
+              <span class="text-2xl font-semibold tabular-nums text-on-surface">{{ trainingDaysLast4 }}</span>
               <span class="text-xs text-on-surface-variant">{{ $t('home.last4WeeksShort') }}</span>
             </div>
           </f7-card-content>
         </f7-card>
 
-        <f7-card class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm m-0">
+        <f7-card class="m-0">
           <f7-card-content class="p-4">
             <div class="flex items-center gap-2 mb-2">
-              <f7-icon material="emoji_events" size="16px" class="text-amber-600" />
+              <f7-icon material="emoji_events" size="16px" class="text-primary" />
               <span class="text-sm font-medium text-on-surface-variant">{{ $t('leaderboard.rank') }}</span>
             </div>
             <div class="flex items-baseline gap-2">
-              <span class="text-2xl font-bold text-on-surface">{{ myRank ? rankDisplay(myRank.rank) : '–' }}</span>
+              <span class="text-2xl font-semibold tabular-nums text-on-surface">{{ myRank ? rankDisplay(myRank.rank) : '–' }}</span>
               <span v-if="myRank" class="text-xs text-on-surface-variant">{{ myRank.totalPoints }} Pts</span>
             </div>
           </f7-card-content>
         </f7-card>
       </div>
 
-      <div v-if="errorMsg" class="text-sm text-red-600 dark:text-red-400">
-        {{ errorMsg }}
-        <f7-link class="ml-2" @click="loadData">{{ $t('retry') }}</f7-link>
-      </div>
+      <error-banner v-if="errorMsg" :message="errorMsg" retryable @retry="loadData" />
     </div>
 
     <app-sheet
@@ -120,13 +117,14 @@ import CurrentlyTrainingCard from '../components/cards/CurrentlyTrainingCard.vue
 import LastWorkoutCard from '../components/cards/LastWorkoutCard.vue'
 import BioAgeHistoryPanel from '../components/bioage/BioAgeHistoryPanel.vue'
 import AppSheet from '../components/AppSheet.vue'
+import ErrorBanner from '../components/ErrorBanner.vue'
 
 export default {
   name: 'StartTab',
 
   emits: ['open-studio-tab'],
 
-  components: { CurrentlyTrainingCard, LastWorkoutCard, BioAgeHistoryPanel, AppSheet },
+  components: { CurrentlyTrainingCard, LastWorkoutCard, BioAgeHistoryPanel, AppSheet, ErrorBanner },
 
   data() {
     return {
@@ -195,10 +193,10 @@ export default {
       return `${sign}${Math.round(delta)}`
     },
     bioAgeDeltaColor() {
-      if (this.totalBioAge == null || this.chronologicalAge == null) return 'text-gray-400'
+      if (this.totalBioAge == null || this.chronologicalAge == null) return 'text-on-surface-variant'
       const delta = Number(this.totalBioAge) - Number(this.chronologicalAge)
-      if (delta < 0) return 'text-emerald-600'
-      if (delta > 0) return 'text-red-500'
+      if (delta < 0) return 'text-success'
+      if (delta > 0) return 'text-error'
       return 'text-on-surface'
     },
     bioAgeDeltaIcon() {

@@ -34,7 +34,7 @@
           :y1="referenceLineY"
           :x2="svgWidth - paddingRight"
           :y2="referenceLineY"
-          stroke="#ef4444"
+          stroke="var(--c-error)"
           stroke-width="1.5"
           stroke-dasharray="4 3"
           stroke-opacity="0.9"
@@ -44,7 +44,7 @@
           :y="referenceLineY - 4"
           text-anchor="end"
           font-size="9"
-          fill="#ef4444"
+          fill="var(--c-error)"
         >{{ referenceLabel || referenceValue }}</text>
       </g>
 
@@ -53,7 +53,7 @@
         v-if="points.length > 1"
         :points="svgPolylinePoints"
         fill="none"
-        stroke="var(--f7-theme-color, #6750A4)"
+        stroke="var(--c-primary)"
         stroke-width="2"
         stroke-linejoin="round"
         stroke-linecap="round"
@@ -63,7 +63,7 @@
       <polygon
         v-if="points.length > 1"
         :points="svgAreaPoints"
-        fill="var(--f7-theme-color, #6750A4)"
+        fill="var(--c-primary)"
         fill-opacity="0.12"
       />
 
@@ -74,7 +74,7 @@
         :cx="pt.x"
         :cy="pt.y"
         r="3"
-        fill="var(--f7-theme-color, #6750A4)"
+        fill="var(--c-primary)"
       />
 
       <!-- X-Achse Labels (nur jedes Nth) -->

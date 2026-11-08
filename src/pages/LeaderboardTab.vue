@@ -6,33 +6,33 @@
       </p>
 
       <!-- User rank banner -->
-      <f7-card v-if="myRank" class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl shadow-sm m-0 mb-4">
+      <f7-card v-if="myRank" class="card-primary m-0 mb-4">
         <f7-card-content class="p-4 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-              <f7-icon material="emoji_events" size="20px" class="text-amber-600" />
+            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+              <f7-icon material="emoji_events" size="20px" class="text-on-primary" />
             </div>
             <div>
-              <span class="block text-sm font-medium text-amber-700">{{ $t('leaderboard.yourRank') }}</span>
-              <span class="block text-3xl font-bold text-amber-900 dark:text-amber-300 leading-none">{{ rankNumberDisplay(myRank.rank) }}</span>
+              <div class="text-sm font-medium opacity-80">{{ $t('leaderboard.yourRank') }}</div>
+              <div class="text-4xl font-semibold leading-none tabular-nums">{{ rankNumberDisplay(myRank.rank) }}</div>
             </div>
           </div>
           <div class="text-right">
             <div class="flex items-center gap-1.5 justify-end">
-              <f7-icon material="military_tech" size="16px" class="text-amber-600" />
-              <span class="text-xl font-bold text-amber-900 dark:text-amber-300">{{ myRank.totalPoints }}</span>
-              <span class="text-sm text-amber-700">Pts</span>
+              <f7-icon material="military_tech" size="16px" />
+              <span class="text-xl font-semibold tabular-nums">{{ myRank.totalPoints }}</span>
+              <span class="text-sm opacity-80">Pts</span>
             </div>
-            <span class="block text-xs text-amber-600 mt-0.5 pr-0!">{{ myRank.sessionCount }} {{ $t('leaderboard.trainingDays') }}</span>
+            <div class="text-xs opacity-80 mt-0.5">{{ myRank.sessionCount }} {{ $t('leaderboard.trainingDays') }}</div>
           </div>
         </f7-card-content>
       </f7-card>
-      <div v-else class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-3 mb-4 text-center text-xs text-on-surface-variant">
+      <div v-else class="bg-surface-container-low rounded-2xl px-4 py-3 mb-4 text-center text-xs text-on-surface-variant">
         {{ $t('leaderboard.notInRanking') }}
       </div>
 
       <div v-if="!entries.length" class="flex flex-col items-center py-12 text-on-surface-variant">
-        <span class="text-4xl mb-3">🏆</span>
+        <f7-icon material="emoji_events" size="40px" class="mb-3 opacity-60" />
         <p class="text-sm">{{ $t('leaderboard.noData') }}</p>
       </div>
 
@@ -42,8 +42,8 @@
           :key="entry.userId"
           :ref="entry.isMe ? 'myEntry' : undefined"
           :class="[
-            'bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-3 shadow-sm ripple relative overflow-hidden',
-            entry.isMe ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800' : ''
+            'rounded-2xl px-4 py-3 ripple relative overflow-hidden',
+            entry.isMe ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low'
           ]"
           @click="openUserHistory(entry)"
         >
@@ -54,19 +54,19 @@
 
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-1">
-                <span class="font-medium truncate" :class="entry.isMe ? 'text-amber-900 dark:text-amber-300' : 'text-on-surface'">
+                <span class="font-medium truncate" :class="entry.isMe ? '' : 'text-on-surface'">
                   {{ entry.displayName }}
-                  <span v-if="entry.isMe" class="text-xs ml-1">(Du)</span>
+                  <span v-if="entry.isMe" class="text-xs ml-1 opacity-80">({{ $t('leaderboard.you') }})</span>
                 </span>
                 <div class="flex items-center gap-1">
-                  <span class="text-lg font-bold text-on-surface">{{ entry.totalPoints }}</span>
+                  <span class="text-lg font-semibold tabular-nums">{{ entry.totalPoints }}</span>
                   <span class="text-xs text-on-surface-variant">Pts</span>
                 </div>
               </div>
 
-              <div class="h-1.5 rounded-full bg-neutral-100 dark:bg-neutral-700 overflow-hidden">
+              <div class="h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
                 <div
-                  class="h-full bg-amber-400 rounded-full duration-500"
+                  class="h-full bg-brand rounded-full duration-500"
                   :style="{ width: progressPct(entry) + '%' }"
                 />
               </div>
@@ -200,10 +200,10 @@ export default {
     },
 
     rankBubbleClass(rank) {
-      if (rank === 1) return 'relative w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-amber-300 to-amber-500 ring-2 ring-amber-300 text-sm font-bold text-amber-900 shrink-0'
-      if (rank === 2) return 'relative w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-slate-300 to-slate-400 ring-2 ring-slate-200 text-sm font-bold text-slate-700 shrink-0'
-      if (rank === 3) return 'relative w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 ring-2 ring-orange-300 text-sm font-bold text-orange-900 shrink-0'
-      return 'w-9 h-9 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-sm font-medium text-neutral-500 shrink-0'
+      if (rank === 1) return 'relative w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-amber-300 to-amber-500 text-sm font-bold text-amber-900 shrink-0'
+      if (rank === 2) return 'relative w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-slate-300 to-slate-400 text-sm font-bold text-slate-700 shrink-0'
+      if (rank === 3) return 'relative w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 text-sm font-bold text-orange-900 shrink-0'
+      return 'w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center text-sm font-medium text-on-surface-variant shrink-0'
     },
 
     sessionCount(entry) {

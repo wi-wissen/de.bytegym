@@ -4,7 +4,7 @@
       <img src="/app-icon.png" alt="ByteGym" class="w-14 h-14 mx-auto rounded-2xl" />
     </f7-login-screen-title>
     <f7-block class="text-center mb-6">
-      <h1 class="text-2xl font-bold text-center">{{ $t('login.title') }}</h1>
+      <h1 class="text-2xl font-semibold tabular-nums text-center">{{ $t('login.title') }}</h1>
       <p class="text-sm opacity-60 mt-1 text-center">{{ $t('login.subtitle') }}</p>
     </f7-block>
 
@@ -74,9 +74,9 @@
     </f7-list>
 
     <!-- Error message -->
-    <f7-block v-if="errorMsg">
-      <p class="text-sm text-red-600 dark:text-red-400 text-center">{{ errorMsg }}</p>
-    </f7-block>
+    <div v-if="errorMsg" class="mx-4">
+      <error-banner :message="errorMsg" />
+    </div>
 
     <f7-block class="mx-4">
       <f7-button
@@ -100,9 +100,12 @@ import { loadStudioInfo } from '../api/studio.js'
 import { sessionStore } from '../store/session.js'
 import { storePassword, clearStoredPassword } from '../store/credentials.js'
 import { errorStore } from '../store/error.js'
+import ErrorBanner from '../components/ErrorBanner.vue'
 
 export default {
   name: 'LoginPage',
+
+  components: { ErrorBanner },
 
   data() {
     return {

@@ -107,18 +107,12 @@ export function intensityClass(level) {
 }
 
 /** Inline style for intensity (works without Tailwind purge issues). */
-export function intensityStyle(level, accentColor = '#6750A4') {
+export function intensityStyle(level) {
   if (level <= 0) {
-    return { backgroundColor: 'rgba(148,163,184,0.22)' }
+    return { backgroundColor: 'var(--c-surface-container-highest)' }
   }
-  const alphas = [0.08, 0.25, 0.45, 0.65, 0.90]
-  const alpha = alphas[Math.min(level, 4)]
-  return { backgroundColor: hexToRgba(accentColor, alpha) }
-}
-
-function hexToRgba(hex, alpha) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r},${g},${b},${alpha})`
+  // Brand amber at rising strength, mixed into nothing so it sits on any surface.
+  const shares = [8, 25, 45, 65, 90]
+  const share = shares[Math.min(level, 4)]
+  return { backgroundColor: `color-mix(in srgb, var(--c-brand) ${share}%, transparent)` }
 }

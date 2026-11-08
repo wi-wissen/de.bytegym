@@ -24,7 +24,9 @@ export default {
         name: 'ByteGym',
         theme: 'md',
         darkMode: 'auto',
-        colors: { primary: '#F59E0B' },
+        // Framework7 still derives its palette from this, but main.css maps every
+        // role it uses onto the app's own tokens.
+        colors: { primary: '#B45309' },
         routes,
       }
     }
@@ -53,60 +55,3 @@ export default {
   }
 }
 </script>
-
-<style>
-/* Material Design color tokens (amber primary) */
-:root {
-  --f7-theme-color: #F59E0B;
-  --f7-theme-color-rgb: 245, 158, 11;
-  --f7-theme-color-shade: #D97706;
-  --f7-theme-color-tint: #FCD34D;
-  --f7-page-bg-color: var(--app-bg);
-  --f7-card-bg-color: #ffffff;
-  --f7-bars-bg-color: var(--app-bg);
-  --f7-tabbar-link-active-color: #D97706;
-  -webkit-font-smoothing: antialiased;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --f7-card-bg-color: #262626;
-  }
-}
-
-/* Color utility classes */
-.text-on-surface         { color: #1c1a14; }
-.text-on-surface-variant { color: #5c5543; }
-.text-primary            { color: var(--f7-theme-color); }
-.bg-surface              { background: var(--f7-card-bg-color); }
-.bg-surface-variant      { background: #f0e8d0; }
-.bg-primary              { background: var(--f7-theme-color); }
-.bg-primary-container    { background: #fef3c7; }
-.text-on-primary         { color: #ffffff; }
-.text-on-primary-container  { color: #78350f; }
-.bg-secondary-container  { background: #fde68a; }
-.text-on-secondary-container { color: #92400e; }
-.text-error              { color: #b91c1c; }
-.bg-error-container      { background: #fee2e2; }
-.bg-background           { background: var(--f7-page-bg-color); }
-.text-on-background      { color: #1c1a14; }
-.border-outline-variant  { border-color: #d6c89a; }
-
-@media (prefers-color-scheme: dark) {
-  .text-on-surface         { color: #f0e8d0; }
-  .text-on-surface-variant { color: #c9b97a; }
-  .bg-surface-variant      { background: #3d3520; }
-  .bg-primary-container    { background: #92400e; }
-  .text-on-primary-container { color: #fef3c7; }
-  .bg-secondary-container  { background: #78350f; }
-  .text-on-secondary-container { color: #fde68a; }
-  .bg-background           { background: #1c1a14; }
-  .text-on-background      { color: #f0e8d0; }
-  .border-outline-variant  { border-color: #3d3520; }
-  .text-error              { color: #fca5a5; }
-  .bg-error-container      { background: #7f1d1d; }
-}
-
-/* F7 cards without horizontal outer margins */
-.card { margin-left: 0 !important; margin-right: 0 !important; }
-</style>

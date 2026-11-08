@@ -93,7 +93,7 @@ export default {
 
     cellStyle(day) {
       if (day.isFuture) {
-        return { backgroundColor: 'rgba(128,128,128,0.1)' }
+        return { backgroundColor: 'var(--c-surface-container)' }
       }
       const level = intensityLevelDynamic(day.count, this.maxCount)
       return intensityStyle(level)

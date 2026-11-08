@@ -17,7 +17,7 @@
   >
     <div class="app-sheet-header">
       <div class="min-w-0">
-        <h2 class="text-lg font-bold text-on-surface truncate">{{ title }}</h2>
+        <h2 class="text-lg font-semibold tabular-nums text-on-surface truncate">{{ title }}</h2>
         <p v-if="subtitle" class="text-xs text-on-surface-variant truncate">{{ subtitle }}</p>
       </div>
       <f7-link
